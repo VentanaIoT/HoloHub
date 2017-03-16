@@ -1,0 +1,20 @@
+{
+  "name": "HoloHub",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/VentanaIoT/HoloHub"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Ventana IoT - 2017",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "~1.0.1",
+    "express": "~4.0.0",
+    "grant": "^3.7.1",
+    "mongoose": "~4.6.8",
+    "morgan": "~1.0.0"
+  }
+}
