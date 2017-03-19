@@ -35,7 +35,7 @@ mongoose.connect('mongodb://ventana:Pistachio1@ds054999.mlab.com:54999/ventana')
 // Add Routers (Modules)
 var routes = require('./routes/sonos');
 var wink = require('./routes/wink');
-var Bear = require('./app/models/bear');
+//var Bear = require('./app/models/bear');
 
 app.use('/', routes);
 app.use('/wink', wink);

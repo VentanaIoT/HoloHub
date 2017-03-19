@@ -13,6 +13,7 @@
   "dependencies": {
     "body-parser": "~1.0.1",
     "express": "~4.0.0",
+    "express-session": "^1.15.1",
     "grant": "^3.7.1",
     "mongoose": "~4.6.8",
     "morgan": "~1.0.0"

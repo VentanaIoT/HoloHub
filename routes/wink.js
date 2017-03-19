@@ -34,6 +34,8 @@ router.get('/light_bulbs/:device_id', function(req, res) {
         console.log('Headers:', JSON.stringify(response.headers));
         console.log('Response:', body);
     });
+
+    res.json({ message: 'merp ' + req.params.device_id });
 });
 
 router.put('/change_state', function(req, res) {
