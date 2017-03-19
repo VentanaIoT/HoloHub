@@ -6,20 +6,23 @@ var app        = express();
 //OAUTH
 var session = require('express-session')
 var Grant = require('grant-express')
-var grant = new Grant(require('./grantconfig.json'))
+var grant = new Grant(require('./config.json'))
 
-app.use(session({secret:'3245tr,gfewuoijlqi;pu498eyoiul438p'}))
+app.use(session({secret:'3245tr,gfewere4re3e4d98eyoiul438p'}))
 app.use(grant)
 
 
 // GET Wink OAUTH - via Grant
 app.get('/handle_wink_callback', function (req, res) {
-  if (!("error" in obj)) {
+  console.log(req.query)
   console.log(req.query.access_token)
-  console.log(req.query.refresh_token)}o
+  console.log(req.query.refresh_token)
   res.end(JSON.stringify(req.query, null, 2))
-})
+});
 
+app.get('/', function(req, res) {
+  res.json({ message: 'Connected to Server' });
+});
 
 
 // configure body parser
@@ -33,12 +36,11 @@ var mongoose = require('mongoose');
 mongoose.connect('mongodb://ventana:Pistachio1@ds054999.mlab.com:54999/ventana');
 
 // Add Routers (Modules)
-var routes = require('./routes/sonos');
+var sonos = require('./routes/sonos');
 var wink = require('./routes/wink');
 //var Bear = require('./app/models/bear');
-
-app.use('/', routes);
 app.use('/wink', wink);
+app.use('/sonos', sonos);
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
