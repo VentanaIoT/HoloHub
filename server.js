@@ -1,29 +1,16 @@
 // call the packages we need
 var express    = require('express');
 var bodyParser = require('body-parser');
-var app        = express();
 
 //OAUTH
 var session = require('express-session')
 var Grant = require('grant-express')
 var grant = new Grant(require('./config.json'))
 
+var app = express();
+
 app.use(session({secret:'3245tr,gfewere4re3e4d98eyoiul438p'}))
 app.use(grant)
-
-
-// GET Wink OAUTH - via Grant
-app.get('/handle_wink_callback', function (req, res) {
-  console.log(req.query)
-  console.log(req.query.access_token)
-  console.log(req.query.refresh_token)
-  res.end(JSON.stringify(req.query, null, 2))
-});
-
-app.get('/', function(req, res) {
-  res.json({ message: 'Connected to Server' });
-});
-
 
 // configure body parser
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,11 +25,24 @@ mongoose.connect('mongodb://ventana:Pistachio1@ds054999.mlab.com:54999/ventana')
 // Add Routers (Modules)
 var sonos = require('./routes/sonos');
 var wink = require('./routes/wink');
-//var Bear = require('./app/models/bear');
-
 
 app.use('/wink', wink);
 app.use('/sonos', sonos);
+
+
+// GET Wink OAUTH - via Grant
+app.get('/handle_wink_callback', function (req, res) {
+  console.log(req.query)
+  console.log(req.query.access_token)
+  console.log(req.query.refresh_token)
+  res.end(JSON.stringify(req.query, null, 2))
+});
+
+// Server Base Endpoint
+app.get('/', function(req, res) {
+  res.json({ message: 'Connected to Server' });
+});
+
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {

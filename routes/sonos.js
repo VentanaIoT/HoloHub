@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var request = require('request');
 
 var SONOS_HTTP_SERVER = "http://localhost:5005/"
 
@@ -11,7 +12,7 @@ var SONOS_HTTP_SERVER = "http://localhost:5005/"
 
 /* GET test page. */
 router.get('/', function(req, res) {
-  res.json({ message: 'Connected to Sonos module' });
+  res.json({ message: 'Connected to Sonos module'});
 });
 
 // GET Status
@@ -43,74 +44,67 @@ router.get('/status/:device_id', function(req, res) {
   })
 });
 
+// Toggle playback (Automatically loggles as needed)
 router.get('/playtoggle/:device_id', function(req, res) {
   // Toggle Playback
-  request('localhost:8080/sonos/status/' + req.params.device_id, function (error, response, body) {
+  request('http://localhost:8080/sonos/status/' + req.params.device_id, function (error, response, body) {
     if (!error && response.statusCode == 200) {
         sonosRequestData = JSON.parse(body);
-        if (sonosSendData["current_transport_state"] == 'PAUSED_PLAYBACK'){
-          request(SONOS_HTTP_SERVER+'resumeall', function (error, response, body) {
+        if (sonosRequestData["current_transport_state"] == 'PAUSED_PLAYBACK'){
+          request(SONOS_HTTP_SERVER+'play', function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 console.log(body) // Print the response page.
             }
           })
-          res.send('Playing')
+          res.send(body)
         }
         else{
-          request(SONOS_HTTP_SERVER + 'pauseall', function (error, response, body) {
+          request(SONOS_HTTP_SERVER + 'pause', function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 console.log(body) // Print the response page.
             }
           })
-          res.send('Paused')
+          res.send(body)
         }
     }
   })
 });
 
-// app.get('/play', function (req, res) {
+// Skip current song
+router.get('/foward/:device_id', function(req,res) {
+  request(SONOS_HTTP_SERVER + 'next', function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+        console.log(body) // Print the response page.
+    }
+    res.send(body)
+  });
+});
 
-//     request(SONOS_HTTP_SERVER+'resumeall', function (error, response, body) {
-//         if (!error && response.statusCode == 200) {
-//             console.log(body) // Print the response page.
-//         }
-//     })
+// Rewind Song/playlist
+router.get('/reverse/:device_id', function(req, res){
+  request(SONOS_HTTP_SERVER + 'previous', function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+        console.log(body) // Print the response page.
+    }
+    res.send(body)
+  });
+});
 
-//     res.send('Playing')
-// })
+// Get all sonos devices on the network
+router.get('/devices', function(req, res){
+  var sonosDevices = {'device_list': []} 
+  request(SONOS_HTTP_SERVER + 'zones', function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+        var sonosRequestData = JSON.parse(body);
+        console.log(body) // Print the response page.
 
-// app.get('/pause', function (req, res) {
-
-//     request(SONOS_HTTP_SERVER + 'pauseall', function (error, response, body) {
-//         if (!error && response.statusCode == 200) {
-//             console.log(body) // Print the response page.
-//         }
-//     })
-
-//     res.send('Paused')
-// })
-
-// app.get('/next', function (req, res) {
-
-//     request(SONOS_HTTP_SERVER + 'next', function (error, response, body) {
-//         if (!error && response.statusCode == 200) {
-//             console.log(body) // Print the response page.
-//         }
-//     })
-
-//     res.send('Skipped')
-// })
-
-// app.get('/previous', function (req, res) {
-
-//     request(SONOS_HTTP_SERVER + 'previous', function (error, response, body) {
-//         if (!error && response.statusCode == 200) {
-//             console.log(body) // Print the response page.
-//         }
-//     })
-
-//     res.send('Replaying')
-// })
-
+        sonosRequestData.forEach( function (arrayItem)
+        {
+          sonosDevices.device_list.push(arrayItem.coordinator.roomName);
+        });
+    }
+    res.json(sonosDevices)
+  });
+});
 
 module.exports = router;
