@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 port = process.env.PORT || 8081; // set our port
-BASESERVER = 'http://localhost';
+BASESERVER = 'http://localhost:';
 
 // connect to our database
 var mongoose = require('mongoose');

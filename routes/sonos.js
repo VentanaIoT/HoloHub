@@ -3,7 +3,8 @@ var router = express.Router();
 var request = require('request');
 
 
-var SONOS_HTTP_SERVER = BASESERVER + ":5005/"
+var SONOS_HTTP_SERVER = BASESERVER + "5005/"
+// var SONOS_HTTP_SERVER = 'http://192.168.0.108:' + "5005/"
 
 var morgan = require('morgan');
 // configure app
@@ -43,7 +44,7 @@ router.get('/status/:device_id', function(req, res) {
           res.json(responseSummary(JSON.parse(body)))
       }
       else {
-          res.send("Not Started or Connected")
+          res.send(500, "Not Started or Connected")
       }
   })
 });
@@ -52,7 +53,7 @@ router.get('/status/:device_id', function(req, res) {
 router.get('/playtoggle/:device_id', function(req, res) {
   // Toggle Playback
   request(BASESERVER + port + '/sonos/status/' + req.params.device_id, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
+    if (!error && response.statusCode == 200 && response.body != 'Not Started or Connected') {
         sonosRequestData = JSON.parse(body);
         if (sonosRequestData["current_transport_state"] == 'PAUSED_PLAYBACK'){
           request(SONOS_HTTP_SERVER+ req.params.device_id + '/play', function (error, response, body) {
@@ -71,6 +72,9 @@ router.get('/playtoggle/:device_id', function(req, res) {
           res.send(body)
         }
     }
+    else {
+          res.send(500, "Not Started or Connected")
+      }
   })
 });
 
