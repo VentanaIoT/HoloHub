@@ -6,8 +6,10 @@ var bodyParser = require('body-parser');
 var session = require('express-session')
 var Grant = require('grant-express')
 var grant = new Grant(require('./config.json'))
-
 var app = express();
+
+var server = require('http').createServer(app); 
+var io = require('socket.io')(server);
 
 app.use(session({secret:'3245tr,gfewere4re3e4d98eyoiul438p'}))
 app.use(grant)
@@ -43,6 +45,12 @@ app.get('/', function(req, res) {
   res.json({ message: 'Connected to Server' });
 });
 
+app.post('/socketsend', function(req, res) {
+    //Socket IO client connected
+    io.emit('push', JSON.stringify(req.body));
+    res.send("ok");
+});
+
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
@@ -75,10 +83,19 @@ app.use(function(err, req, res, next) {
     });
 });
 
+//Server-side requested socket send request
+
+io.on('connection', function(client) {  
+    console.log('Client connected...');
+    
+});
+
+
 
 module.exports = app;
 
 // START THE SERVER
 // =============================================================================
 app.listen(port);
+server.listen(4200);
 console.log('Magic happens on port ' + port);
