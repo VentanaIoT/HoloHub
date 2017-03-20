@@ -3,13 +3,11 @@ var router = express.Router();
 var request = require('request');
 
 
-var SONOS_HTTP_SERVER = "http://localhost:5005/"
+var SONOS_HTTP_SERVER = BASESERVER + ":5005/"
 
-// var morgan     = require('morgan');
-//
-// // configure app
-// app.use(morgan('dev')); // log requests to the console
-
+var morgan = require('morgan');
+// configure app
+router.use(morgan('dev')); // log requests to the console
 
 /* GET test page. */
 router.get('/', function(req, res) {
@@ -53,7 +51,7 @@ router.get('/status/:device_id', function(req, res) {
 // Toggle playback (Automatically loggles as needed)
 router.get('/playtoggle/:device_id', function(req, res) {
   // Toggle Playback
-  request('http://localhost:8080/sonos/status/' + req.params.device_id, function (error, response, body) {
+  request(BASESERVER + port + '/sonos/status/' + req.params.device_id, function (error, response, body) {
     if (!error && response.statusCode == 200) {
         sonosRequestData = JSON.parse(body);
         if (sonosRequestData["current_transport_state"] == 'PAUSED_PLAYBACK'){
@@ -77,7 +75,7 @@ router.get('/playtoggle/:device_id', function(req, res) {
 });
 
 // Skip current song
-router.get('/foward/:device_id', function(req,res) {
+router.get('/forward/:device_id', function(req,res) {
   request(SONOS_HTTP_SERVER + req.params.device_id + '/next', function (error, response, body) {
     if (!error && response.statusCode == 200) {
         console.log(body) // Print the response page.
@@ -97,8 +95,8 @@ router.get('/reverse/:device_id', function(req, res){
 });
 
 // Volume Control
-router.get('/volume/:device_id/:volumeValue', function(req, res){
-  request(SONOS_HTTP_SERVER + req.params.device_id + '/volume/' + req.params.volumeValue, function(error, response, body){
+router.post('/volume/:device_id/', function(req, res){
+  request(SONOS_HTTP_SERVER + req.params.device_id + '/volume/' + req.body.value, function(error, response, body){
     if (!error && response.statusCode == 200) {
         console.log(body) // Print the response page.
     }
@@ -148,7 +146,7 @@ router.post('/pushnotification', function(req,res){
   
   var options = {
         method: 'POST',
-        url: 'http://localhost:8080/socketsend',
+        url: BASESERVER + port + '/socketsend',
         body: sonosResponse,
         json: true
     };

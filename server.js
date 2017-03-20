@@ -18,7 +18,8 @@ app.use(grant)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-var port = process.env.PORT || 8080; // set our port
+port = process.env.PORT || 8081; // set our port
+BASESERVER = 'http://localhost';
 
 // connect to our database
 var mongoose = require('mongoose');
