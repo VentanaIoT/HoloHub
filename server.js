@@ -21,6 +21,11 @@ app.use(bodyParser.json());
 port = process.env.PORT || 8081; // set our port
 BASESERVER = 'http://localhost:';
 
+// wink tokens
+WINK_ACCESS_TOKEN = "";
+WINK_REFRESH_TOKEN = "";
+WINK_AUTHORIZATION = "";
+
 // connect to our database
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://ventana:Pistachio1@ds054999.mlab.com:54999/ventana');
@@ -35,9 +40,13 @@ app.use('/sonos', sonos);
 
 // GET Wink OAUTH - via Grant
 app.get('/handle_wink_callback', function (req, res) {
-  console.log(req.query)
-  console.log(req.query.access_token)
-  console.log(req.query.refresh_token)
+  //console.log(req.query)
+  //console.log(req.query.access_token)
+  //console.log(req.query.refresh_token)
+  WINK_ACCESS_TOKEN = req.query.access_token;
+  WINK_REFRESH_TOKEN = req.query.refresh_token;
+  WINK_AUTHORIZATION = req.query.raw.data.token_type + ' ' + WINK_ACCESS_TOKEN;
+  //console.log(WINK_AUTHORIZATION)
   res.end(JSON.stringify(req.query, null, 2))
 });
 

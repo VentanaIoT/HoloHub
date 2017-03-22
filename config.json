@@ -1,7 +1,7 @@
 {
   "server": {
     "protocol": "http",
-    "host": "localhost:8080"
+    "host": "localhost:8081"
   },
   "wink": {
     "authorize_url": "https://api.wink.com/oauth2/authorize",
