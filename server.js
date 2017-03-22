@@ -24,7 +24,7 @@ BASESERVER = 'http://localhost:';
 // wink tokens
 WINK_ACCESS_TOKEN = "";
 WINK_REFRESH_TOKEN = "";
-WINK_AUTHORIZATION = "";
+WINK_AUTHORIZATION = 'bearer 82pXcnWl6h-5wPyTIrBJBYqxve-ZHih7';
 
 // connect to our database
 var mongoose = require('mongoose');

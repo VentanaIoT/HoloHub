@@ -11,9 +11,11 @@ function winkSummary(body) {
     winkRequestData = body;
     var winkSendData = {}
 
-    winkSendData["device_type"] = winkRequestData.device_type;
-    winkSendData["device_id"] = winkRequestData.device_id;
+    //winkSendData["device_type"] = winkRequestData.device_type;
+    //winkSendData["device_id"] = winkRequestData.device_id;
 
+    winkSendData["count"] = winkRequestData.pagination.count;
+    console.log(winkSendData["count"]);
     return winkSendData;
 }
 
@@ -26,7 +28,7 @@ router.get('/', function(req,res){
 // get all wink devices connected to the account logged in
 router.get('/wink_devices', function(req, res){
 
-    conosole.log("Authorization: " + WINK_AUTHORIZATION);
+    //conosole.log("Authorization: " + WINK_AUTHORIZATION);
 
     request({
         method: 'GET',
@@ -141,17 +143,26 @@ router.put('/change_state', function(req, res) {
         headers: {
             'Content-Type': 'application/json', 
             //'Authorization': req.body.Authorization 
-            Authorization : 'Bearer oVTdVyKz0mRiho1dJW5r-Sv1hW3LB6K_'
+            Authorization : WINK_AUTHORIZATION
         },
-        body: { "desired_state": { "powered": true } },
+        body: { 
+            "desired_state": { 
+                "powered": true,
+                "brightness": 0.5
+            } 
+        },
         json: true
     };
     
     request(options, function (error, response, body) {
-        console.log("request", options.body);
-        //console.log('Status:', response.statusCode);
-        //console.log('Headers:', JSON.stringify(response.headers));
-        console.log('Response:', body);
+        if (!error && response.statusCode == 200) {
+            console.log("request", options.body);
+            console.log('Status:', response.statusCode);
+            //console.log('Headers:', JSON.stringify(response.headers));
+            console.log('Response:', body);
+        } else {
+
+        }
     });
 
     res.json({ message: 'Change State'});
