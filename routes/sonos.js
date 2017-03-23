@@ -1,20 +1,14 @@
 var express = require('express');
 var router = express.Router();
 var request = require('request');
+var SonosDM = require('../app/models/sonosController');
 
 
-var SONOS_HTTP_SERVER = BASESERVER + "5005/"
-// var SONOS_HTTP_SERVER = 'http://192.168.0.108:' + "5005/"
+var SONOS_HTTP_SERVER = BASESERVER + ":5005"
+// var SONOS_HTTP_SERVER = 'http://192.168.0.108' + ":5005"
 
-var morgan = require('morgan');
-// configure app
-router.use(morgan('dev')); // log requests to the console
 
-/* GET test page. */
-router.get('/', function(req, res) {
-  res.json({ message: 'Connected to Sonos module'});
-});
-
+// Convert Sonos response into Sonos HoloHub Object friendly response
 function responseSummary(body){
   sonosRequestData = body;
   var sonosSendData = {}
@@ -33,30 +27,163 @@ function responseSummary(body){
   return sonosSendData;
 }
 
-// GET Status
+//Convert a Vumark ID to a Sonos Device ID (the group/device name)
+function getDeviceNamebyID(device_id, callback){
+  
+  SonosDM.findById(parseInt(device_id), function(err, sonos){
+      if (err){
+        throw err;
+      }
+      if (sonos){
+        return callback(sonos.deviceName);
+      }
+      else{
+        return callback(null);
+      }
+    });
+};
+
+//Convert a Device ID (the group/device name) to a Vumark ID
+function getDeviceIDbyName(deviceName, callback){
+  SonosDM.findOne({"deviceName": deviceName}, function(err, sonos){
+    if (err){
+        throw err;
+      }
+      if (sonos){
+        return callback(sonos._id);
+      }
+      else{
+        return callback(null);
+      }
+  });
+};
+
+// Get all sonos objects and Create a new Sonos Music Object
+router.route('/')
+
+  .get(function(req, res) {
+
+    SonosDM.find(function(err, sonos) {
+              if (err)
+                  res.send(err);
+
+              res.json(sonos);
+          }).select('deviceName');
+  })
+
+  .post(function(req, res){ 
+    
+    /* 
+      Process new sonos object POST request. This
+      will include the device_id (VuMark ID) and the
+      device_name (Sonos API ID "in this case a string")
+    */
+
+    // TODO: ######## CHECK TO SEE IF DEVICE ALREADY EXISTS IN RECORD!!!!! ##############
+    
+    var sonos = new SonosDM();  // Create new instance of a sonos object
+    sonos.vumarkID = req.body.device_id
+    sonos._id = sonos.vumarkID
+    sonos.deviceName = req.body.deviceName
+
+    request(BASESERVER + ":" + port + '/sonos/status/' + sonos.deviceName + '?skiplookup=true', function (error, response, body) {
+      if (!error && response.statusCode == 200 && response.body != 'Not Started or Connected') {
+          sonosRequestData = JSON.parse(body);
+          sonos.album = sonosRequestData.album;
+          sonos.artist = sonosRequestData.artist;
+          sonos.title = sonosRequestData.title;
+          sonos.current_transport_state = sonosRequestData.current_transport_state;
+          sonos.uri = sonosRequestData.uri;
+          sonos.playlist_position = sonosRequestData.playlist_position;
+          sonos.duration = sonosRequestData.duration;
+          sonos.position = sonosRequestData.position;
+          sonos.metadata = sonosRequestData.metadata;
+          sonos.album_art = sonosRequestData.album_art;
+
+          sonos.save(function(err) {
+              if (err)
+                  res.send(err);
+
+              res.json({ message: 'SonosDM object created!' });
+          });     
+      }
+      else {
+            res.send(500, "Not Started or Connected")
+      }
+    });
+  });
+
+
+
+//Update Device or Get Device by Vuforia ID
+router.route('/byId/:device_id')
+
+  .get(function(req, res){
+    //Get the Sonos Object by ID
+    SonosDM.findById(parseInt(req.params.device_id), function(err, sonos){
+      if (err){
+        res.send(err);
+      }
+      res.json(sonos);
+    });
+  })
+
+  .put(function(req, res){
+    SonosDM.findByIdAndUpdate(parseInt(req.params.device_id), req.body, function(err,sonos){
+      if (err){
+        res.send(err);
+      }
+      res.json(sonos);
+    });
+  });
+
+
+// GET Status by Vumark ID
 router.get('/status/:device_id', function(req, res) {
   // Toggle Playback
   var sonosRequestData;
-  request(SONOS_HTTP_SERVER + req.params.device_id + '/state', function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-          console.log(body); // Print the response page.
-          
-          res.json(responseSummary(JSON.parse(body)))
-      }
-      else {
-          res.send(500, "Not Started or Connected")
-      }
-  })
+
+  //Initial device setup query to get sonos state data
+  if(req.query.skiplookup){
+     request(SONOS_HTTP_SERVER + "/" + req.params.device_id + '/state', function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            console.log(body); // Print the response page.
+            
+            res.json(responseSummary(JSON.parse(body)))
+        }
+        else {
+            res.send(500, "Not Started or Connected")
+        }
+      });
+  }
+  // Get sonos state data based on a vumark ID
+  else
+  {
+    getDeviceNamebyID(req.params.device_id, function(deviceName){
+      request(SONOS_HTTP_SERVER + "/" + deviceName + '/state', function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            /* DEBUG CONSOLE */
+            console.log(body); // Print the response page.
+            res.json(responseSummary(JSON.parse(body)))
+        }
+        else {
+            res.send(500, "Not Started or Connected")
+        }
+      });
+    });
+  }
 });
 
 // Toggle playback (Automatically loggles as needed)
 router.get('/playtoggle/:device_id', function(req, res) {
   // Toggle Playback
-  request(BASESERVER + port + '/sonos/status/' + req.params.device_id, function (error, response, body) {
+  
+  var deviceName = getDeviceNamebyID(req.params.device_id);
+  request(BASESERVER + ':' +  port + '/sonos/status/' + deviceName, function (error, response, body) {
     if (!error && response.statusCode == 200 && response.body != 'Not Started or Connected') {
         sonosRequestData = JSON.parse(body);
         if (sonosRequestData["current_transport_state"] == 'PAUSED_PLAYBACK'){
-          request(SONOS_HTTP_SERVER+ req.params.device_id + '/play', function (error, response, body) {
+          request(SONOS_HTTP_SERVER + '/' + deviceName + '/play', function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 console.log(body) // Print the response page.
             }
@@ -64,7 +191,7 @@ router.get('/playtoggle/:device_id', function(req, res) {
           res.send(body)
         }
         else{
-          request(SONOS_HTTP_SERVER + req.params.device_id + '/pause', function (error, response, body) {
+          request(SONOS_HTTP_SERVER + '/' + deviceName + '/pause', function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 console.log(body) // Print the response page.
             }
@@ -80,7 +207,8 @@ router.get('/playtoggle/:device_id', function(req, res) {
 
 // Skip current song
 router.get('/forward/:device_id', function(req,res) {
-  request(SONOS_HTTP_SERVER + req.params.device_id + '/next', function (error, response, body) {
+  var deviceName = getDeviceNamebyID(req.params.device_id);
+  request(SONOS_HTTP_SERVER + '/' + deviceName + '/next', function (error, response, body) {
     if (!error && response.statusCode == 200) {
         console.log(body) // Print the response page.
     }
@@ -90,7 +218,7 @@ router.get('/forward/:device_id', function(req,res) {
 
 // Rewind Song/playlist
 router.get('/reverse/:device_id', function(req, res){
-  request(SONOS_HTTP_SERVER + req.params.device_id + '/previous', function (error, response, body) {
+  request(SONOS_HTTP_SERVER + '/' + deviceName + '/previous', function (error, response, body) {
     if (!error && response.statusCode == 200) {
         console.log(body) // Print the response page.
     }
@@ -100,7 +228,8 @@ router.get('/reverse/:device_id', function(req, res){
 
 // Volume Control
 router.post('/volume/:device_id/', function(req, res){
-  request(SONOS_HTTP_SERVER + req.params.device_id + '/volume/' + req.body.value, function(error, response, body){
+  var deviceName = getDeviceNamebyID(req.params.device_id);
+  request(SONOS_HTTP_SERVER + '/' + deviceName + '/volume/' + req.body.value, function(error, response, body){
     if (!error && response.statusCode == 200) {
         console.log(body) // Print the response page.
     }
@@ -108,22 +237,43 @@ router.post('/volume/:device_id/', function(req, res){
   });
 });
 
-// Get all sonos devices on the network
+// Get all sonos devices on the network -- SONOS CALL
 router.get('/devices', function(req, res){
-  var sonosDevices = {'device_list': []} 
-  request(SONOS_HTTP_SERVER + 'zones', function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-        var sonosRequestData = JSON.parse(body);
-        console.log(body) // Print the response page.
-
-        sonosRequestData.forEach( function (arrayItem)
-        {
-          sonosDevices.device_list.push(arrayItem.coordinator.roomName);
-        });
+  var sonosDevices = {'paired_devices': [], 'unpaired_devices': []} 
+  var connectedDevices = {}
+  
+  // Retrieve all devices paired with the HoloHub, place into a dictionary {deviceName: deviceID}
+  request(BASESERVER + ':' +  port + '/sonos/', function(error, response, body){
+    if(!error && response.statusCode == 200) {
+      var temp1 = JSON.parse(body);
+      temp1.forEach(function(arrayItem){
+        connectedDevices[arrayItem.deviceName] = arrayItem._id;
+      });
     }
-    res.json(sonosDevices)
+    // Discover all sonos devices on the network
+    request(SONOS_HTTP_SERVER + '/' + 'zones', function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+          var sonosRequestData = JSON.parse(body);
+
+          sonosRequestData.forEach( function(arrayItem) {
+            //If device name is in connectedDevices, then device is paired -- show w/ it's vumark ID
+            if(arrayItem.coordinator.roomName in connectedDevices){
+              var temp1 = {};
+              temp1[arrayItem.coordinator.roomName] = connectedDevices[arrayItem.coordinator.roomName];
+              sonosDevices.paired_devices.push(temp1);
+            }        
+            else
+            {
+              sonosDevices.unpaired_devices.push(arrayItem.coordinator.roomName);
+            }
+          });
+          res.json(sonosDevices);       
+      };
+    });
   });
 });
+
+
 
 /** SONOS Socket.IO Push notification service **/
 
@@ -131,36 +281,50 @@ router.get('/devices', function(req, res){
 router.post('/pushnotification', function(req,res){
   //Send state change to Socket.IO connected clients
   var sonosResponse = {};
-
-  switch(req.body.type) {
-    case "transport-state":
-        sonosResponse[req.body.data.roomName] = responseSummary(req.body.data.state);
-        break;
-    case "topology-change":
-        sonosResponse["topology"] = req.body.data;
-        break;
-    case "volume-change":
-        sonosResponse[req.body.data.roomName] = req.body.data;
-        break;
-    default:
-        sonosResponse["other"] = req.body.data;
-  }
-  
-  console.log(sonosResponse)
-  
-  var options = {
+  // Filter out notification requests such that only song-state changes take place. 
+  if(req.body.type == 'transport-state') {
+    //Retrieve standardized sonos object value
+    var device_id = getDeviceIDbyName(req.body.data.roomName);
+    // Igonore devices that haven't been setup in HoloHub
+    if (device_id != null){
+      sonosResponse[device_id] = responseSummary(req.body.data.state);
+      var options = {
         method: 'POST',
         url: BASESERVER + port + '/socketsend',
         body: sonosResponse,
         json: true
-    };
+      };
     
-    request(options, function (error, response, body) {
-        console.log("Push Notification Sent");
-    });
-
-  res.send("ok")
+      //Send push notification request to sonos
+      request(options, function (error, response, body) {
+        //#### DEBUG ####
+        //console.log(sonosResponse)
+        //console.log("Push Notification Sent");
+        if(error || response.statusCode != 200){
+          console.log(error);
+        }
+      });
+      res.send("ok")
+    }
+    res.send("error")
+  };
 });
 
 
 module.exports = router;
+
+
+
+/******** BELOW LIES GARBAGE (also known as The EJ Zone)  **************/
+
+// BUT WHY???? Update database entry
+// SonosDM.findOneAndUpdate({'deviceName': req.body.data.roomName}, sonosResponse[req.body.data.roomName], {new: true}, function(err, sonos){
+//   //SonosDM.findOne({'deviceName': req.body.data.roomName}, function(err, sonos){
+//   if(err){
+//     res.send(err);
+//   }
+//   if(sonos){
+//     sonosResponse[req.body.data.roomName] = sonos._doc;
+//   }
+// });
+// Format POST request for /socketsend request on the Server.JS 
