@@ -9,7 +9,7 @@ var SONOS_HTTP_SERVER = BASESERVER + ":5005"
 
 
 // Convert Sonos response into Sonos HoloHub Object friendly response
-function responseSummary(body){
+function responseSummary(body, callback){
   sonosRequestData = body;
   var sonosSendData = {}
 
@@ -24,7 +24,7 @@ function responseSummary(body){
   sonosSendData["metadata"] = sonosRequestData.elapsedTime;
   sonosSendData["album_art"] = sonosRequestData.currentTrack.absoluteAlbumArtUri;
 
-  return sonosSendData;
+  return callback(sonosSendData);
 }
 
 //Convert a Vumark ID to a Sonos Device ID (the group/device name)
@@ -149,7 +149,9 @@ router.get('/status/:device_id', function(req, res) {
         if (!error && response.statusCode == 200) {
             console.log(body); // Print the response page.
             
-            res.json(responseSummary(JSON.parse(body)))
+            responseSummary(JSON.parse(body), function(responseJson){
+                res.json(responseJson);
+            });
         }
         else {
             res.send(500, "Not Started or Connected")
@@ -164,7 +166,9 @@ router.get('/status/:device_id', function(req, res) {
         if (!error && response.statusCode == 200) {
             /* DEBUG CONSOLE */
             console.log(body); // Print the response page.
-            res.json(responseSummary(JSON.parse(body)))
+            responseSummary(JSON.parse(body), function(responseJson){
+                res.json(responseJson);
+            });
         }
         else {
             res.send(500, "Not Started or Connected")
@@ -176,67 +180,75 @@ router.get('/status/:device_id', function(req, res) {
 
 // Toggle playback (Automatically loggles as needed)
 router.get('/playtoggle/:device_id', function(req, res) {
-  // Toggle Playback
   
-  var deviceName = getDeviceNamebyID(req.params.device_id);
-  request(BASESERVER + ':' +  port + '/sonos/status/' + deviceName, function (error, response, body) {
-    if (!error && response.statusCode == 200 && response.body != 'Not Started or Connected') {
+  // Toggle Playback
+  getDeviceNamebyID(req.params.device_id, function(deviceName){
+
+    request(BASESERVER + ':' +  port + '/sonos/status/' + deviceName, function (error, response, body) {
+      if (!error && response.statusCode == 200 && response.body != 'Not Started or Connected') {
         sonosRequestData = JSON.parse(body);
         if (sonosRequestData["current_transport_state"] == 'PAUSED_PLAYBACK'){
           request(SONOS_HTTP_SERVER + '/' + deviceName + '/play', function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 console.log(body) // Print the response page.
             }
-          })
-          res.send(body)
+          });
+          res.send(body);
         }
         else{
           request(SONOS_HTTP_SERVER + '/' + deviceName + '/pause', function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 console.log(body) // Print the response page.
             }
-          })
+          });
           res.send(body)
         }
-    }
-    else {
-          res.send(500, "Not Started or Connected")
       }
-  })
+      else {
+        res.send(500, "Not Started or Connected")
+      }
+    });
+  });
 });
 
 // Skip current song
 router.get('/forward/:device_id', function(req,res) {
-  var deviceName = getDeviceNamebyID(req.params.device_id);
-  request(SONOS_HTTP_SERVER + '/' + deviceName + '/next', function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-        console.log(body) // Print the response page.
-    }
-    res.send(body)
+  getDeviceNamebyID(req.params.device_id, function(deviceName){
+    request(SONOS_HTTP_SERVER + '/' + deviceName + '/next', function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+          console.log(body) // Print the response page.
+      }
+      res.send(body)
+    });
   });
 });
 
 // Rewind Song/playlist
 router.get('/reverse/:device_id', function(req, res){
-  request(SONOS_HTTP_SERVER + '/' + deviceName + '/previous', function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-        console.log(body) // Print the response page.
-    }
-    res.send(body)
+  getDeviceNamebyID(req.params.device_id, function(deviceName){
+    request(SONOS_HTTP_SERVER + '/' + deviceName + '/previous', function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+          console.log(body) // Print the response page.
+      }
+      res.send(body)
+    });
   });
 });
 
 // Volume Control
 router.post('/volume/:device_id/', function(req, res){
-  var deviceName = getDeviceNamebyID(req.params.device_id);
-  request(SONOS_HTTP_SERVER + '/' + deviceName + '/volume/' + req.body.value, function(error, response, body){
-    if (!error && response.statusCode == 200) {
-        console.log(body) // Print the response page.
-    }
-    res.send(body)
+  getDeviceNamebyID(req.params.device_id, function(deviceName){
+    request(SONOS_HTTP_SERVER + '/' + deviceName + '/volume/' + req.body.value, function(error, response, body){
+      if (!error && response.statusCode == 200) {
+          console.log(body) // Print the response page.
+      }
+      res.send(body)
+    });
   });
 });
 
+
+/******  TODO FIX THIS TO USE THE CORRECT CALLBACK REQUEST FUNCTION ******/
 // Get all sonos devices on the network -- SONOS CALL
 router.get('/devices', function(req, res){
   var sonosDevices = {'paired_devices': [], 'unpaired_devices': []} 
@@ -274,7 +286,6 @@ router.get('/devices', function(req, res){
 });
 
 
-
 /** SONOS Socket.IO Push notification service **/
 
 //Server endpoint that recieves state changes from Sonos HTTP Server (Push Notifications)
@@ -284,29 +295,33 @@ router.post('/pushnotification', function(req,res){
   // Filter out notification requests such that only song-state changes take place. 
   if(req.body.type == 'transport-state') {
     //Retrieve standardized sonos object value
-    var device_id = getDeviceIDbyName(req.body.data.roomName);
+    getDeviceIDbyName(req.body.data.roomName, function(device_id){
     // Igonore devices that haven't been setup in HoloHub
-    if (device_id != null){
-      sonosResponse[device_id] = responseSummary(req.body.data.state);
-      var options = {
-        method: 'POST',
-        url: BASESERVER + port + '/socketsend',
-        body: sonosResponse,
-        json: true
-      };
-    
-      //Send push notification request to sonos
-      request(options, function (error, response, body) {
-        //#### DEBUG ####
-        //console.log(sonosResponse)
-        //console.log("Push Notification Sent");
-        if(error || response.statusCode != 200){
-          console.log(error);
-        }
-      });
-      res.send("ok")
-    }
-    res.send("error")
+      if (device_id != null){
+        responseSummary(req.body.data.state, function(responseJson){
+          sonosResponse[device_id] = responseJson;
+          var options = {
+            method: 'POST',
+            url: BASESERVER + ':' + port + '/socketsend',
+            body: sonosResponse,
+            json: true
+          };
+      
+          //Send push notification request to sonos
+          request(options, function (error, response, body) {
+            //#### DEBUG ####
+            //console.log(sonosResponse)
+            //console.log("Push Notification Sent");
+            if(error || response.statusCode != 200){
+              console.log(error);
+            }
+          });
+          res.send("ok");
+        });
+      }
+      else
+        res.send("error");
+    });
   };
 });
 

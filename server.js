@@ -116,3 +116,4 @@ module.exports = app;
 app.listen(port);
 server.listen(4200);
 console.log('Magic happens on port ' + port);
+console.log('Sockets wizardy on port 4200');
