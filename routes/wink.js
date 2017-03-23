@@ -29,7 +29,7 @@ router.get('/', function(req,res){
 router.get('/wink_devices', function(req, res){
 
     //conosole.log("Authorization: " + WINK_AUTHORIZATION);
-
+    var winkDevices = {'device_list': []}
     request({
         method: 'GET',
         url: WINK_HTTP_SERVER + 'users/me/wink_devices',
@@ -39,15 +39,19 @@ router.get('/wink_devices', function(req, res){
         },
     }, function(error, response, body){
         if (!error && response.statusCode == 200) {
-            console.log('Status:', response.statusCode);
+            //console.log('Status:', response.statusCode);
             console.log('Headers:', JSON.stringify(response.headers));
-            console.log('Response:', JSON.parse(body));
+            //console.log('Response:', JSON.parse(body));
             
             res.json({ message: JSON.parse(body)});
 
-            var winkRequestData = JSON.parse(body);
+            var winkRequestData = body.data;
 
+            /*winkRequestData.forEach( function (arrayItem) {
+                winkDevices.device_list.push(arrayItem.name);
+            });*/
 
+            res.json(winkRequestData)
         } else {
             res.send(500, "Not started or connected");
         }
@@ -134,7 +138,7 @@ router.get('/powerstrips/:device_id', function(req, res) {
 });
 
 // uses PUT to change the state for the particular device
-router.put('/change_state', function(req, res) {
+router.post('/change_state', function(req, res) {
     
     var options = {
         method: 'PUT',
@@ -150,15 +154,14 @@ router.put('/change_state', function(req, res) {
                 "powered": true,
                 "brightness": 0.5
             } 
-        },
-        json: true
+        }
     };
     
     request(options, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             console.log("request", options.body);
             console.log('Status:', response.statusCode);
-            //console.log('Headers:', JSON.stringify(response.headers));
+            console.log('Headers:', JSON.stringify(response.headers));
             console.log('Response:', body);
         } else {
 
