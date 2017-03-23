@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var request = require('request');
 
-var WINK_HTTP_SERVER = "http://api.wink.com/"
+var WINK_HTTP_SERVER = "https://api.wink.com/"
 
 var morgan = require('morgan');
 router.use(morgan('dev'));
@@ -13,9 +13,12 @@ function winkSummary(body) {
 
     //winkSendData["device_type"] = winkRequestData.device_type;
     //winkSendData["device_id"] = winkRequestData.device_id;
+    winkSendData["name"] = winkRequestData.name;
+    winkSendData["desired_state"] = winkRequestData.desired_state;
+    //winkSendData["subscription"] = winkRequestData.subscription;
 
-    winkSendData["count"] = winkRequestData.pagination.count;
-    console.log(winkSendData["count"]);
+    //winkSendData["count"] = winkRequestData.pagination.count;
+    //console.log(winkSendData["count"]);
     return winkSendData;
 }
 
@@ -60,12 +63,13 @@ router.get('/wink_devices', function(req, res){
 });
 
 // gets the light_bulb status for the particular id
-router.get('/light_bulbs/:device_id', function(req, res) {
+router.get('/status/:vumark_id', function(req, res) {
 
-    var winkRequestData;
+    //Johan wants name and desired_state object and vumark_id
+    //var winkRequestData;
     request({
         method: 'GET',
-        url: WINK_HTTP_SERVER + 'light_bulbs/' + req.params.device_id,
+        url: WINK_HTTP_SERVER + 'light_bulbs/' + req.body.vumark_id, //hardcoded with light bulbs rn
         headers: {
             'Content-Type': 'application/json',
             'Authorization': WINK_AUTHORIZATION
@@ -76,85 +80,55 @@ router.get('/light_bulbs/:device_id', function(req, res) {
             console.log('Headers:', JSON.stringify(response.headers));
             console.log('Response:', body);
 
-            res.json(winkSummary(JSON.parse(body)))
+            var winky = winkSummary(JSON.parse(body));
+
+            winky["vumark_id"] = req.params.vumark_id;
+
+            res.json(winky);
+            res.json({ message: 'Light bulb id ' + req.body.device_id });
         } else {
             res.send(500, "Not started or connected")
+            res.json({ message: 'Light bulb id ' + req.body.device_id });
         }
     });
 
-    res.json({ message: 'Light bulb id ' + req.params.device_id });
-});
-
-// gets the hub status for the particular id
-router.get('/hubs/:device_id', function(req, res) {
-    
-    var winkRequestData;
-    request({
-        method: 'GET',
-        url: WINK_HTTP_SERVER + 'hubs/' + req.params.device_id,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': WINK_AUTHORIZATION
-        },
-    }, function(error, response, body) {
-        if (!error && response.statusCode == 200) {     
-            console.log('Status:', response.statusCode);
-            console.log('Headers:', JSON.stringify(response.headers));
-            console.log('Response:', body);
-
-            res.json(winkSummary(JSON.parse(body)))
-        } else {
-            res.send(500, "Not started or connected")
-        }
-    });
-
-    res.json({ message: 'Hub id ' + req.params.device_id });
-});
-
-// gets the powerstrips status for the particular id
-router.get('/powerstrips/:device_id', function(req, res) {
-    
-    var winkRequestData;
-    request({
-        method: 'GET',
-        url: WINK_HTTP_SERVER + 'powerstrips/' + req.params.device_id,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': req.body.Authorization
-        },
-    }, function(error, response, body) {
-        if (!error && response.statusCode == 200) {     
-            console.log('Status:', response.statusCode);
-            console.log('Headers:', JSON.stringify(response.headers));
-            console.log('Response:', body);
-
-            res.json(winkSummary(JSON.parse(body)))
-        } else {
-            res.send(500, "Not started or connected")
-        }
-    });
-
-    res.json({ message: 'Powerstrips id ' + req.params.device_id });
 });
 
 // uses PUT to change the state for the particular device
-router.post('/change_state', function(req, res) {
+router.post('/change_state/:vumark_id', function(req, res) {
     
+    //var device_id = req.body.vumark_id;  
+    /* {
+        vumarkID: string, 
+        desired_state: Object (JSON)
+    }
+    
+    getDevicebyID(req.body.vumark, function(returnObject){
+
+            LOGIC GOES HERE
+            var 1 = returnObject.device_id ==> WINK DEVICE
+            var 2 =returnObject.device_type  --> WINK DEVICE TYPE
+
+           [here]
+
+           options request goes heren\ like put to wink
+
+    });
+
+
+    */
+
     var options = {
         method: 'PUT',
         //url: WINK_HTTP_SERVER + req.body.device_type + '/' + req.body.device_id + '/desired_state',
-        url: WINK_HTTP_SERVER + 'light_bulbs/2416737/desired_state',
+        url: WINK_HTTP_SERVER + 'light_bulbs/' + req.params.vumark_id + '/desired_state',
         headers: {
             'Content-Type': 'application/json', 
             //'Authorization': req.body.Authorization 
             Authorization : WINK_AUTHORIZATION
         },
-        body: { 
-            "desired_state": { 
-                "powered": true,
-                "brightness": 0.5
-            } 
-        }
+        body: JSON.parse(req.body.value),
+        json: true
     };
     
     request(options, function (error, response, body) {
@@ -163,12 +137,14 @@ router.post('/change_state', function(req, res) {
             console.log('Status:', response.statusCode);
             console.log('Headers:', JSON.stringify(response.headers));
             console.log('Response:', body);
+            res.json({ message: 'Change State'});
         } else {
-
-        }
+            console.log(error + ' ' + response.statusCode)
+            res.json({ message: 'Error State'});
+        }        
     });
 
-    res.json({ message: 'Change State'});
+    
 });
 
 module.exports = router;
