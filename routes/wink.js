@@ -11,9 +11,8 @@ function winkSummary(body) {
     winkRequestData = body;
     var winkSendData = {}
 
-    //winkSendData["device_type"] = winkRequestData.device_type;
-    //winkSendData["device_id"] = winkRequestData.device_id;
-
+    winkSendData["device_type"] = winkRequestData.device_type;
+    winkSendData["device_id"] = winkRequestData.device_id;
     winkSendData["count"] = winkRequestData.pagination.count;
     console.log(winkSendData["count"]);
     return winkSendData;

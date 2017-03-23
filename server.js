@@ -8,8 +8,10 @@ var Grant = require('grant-express')
 var grant = new Grant(require('./config.json'))
 var app = express();
 
+//Socket.IO 
 var server = require('http').createServer(app); 
 var io = require('socket.io')(server);
+io.set('transports', ['websocket']);
 
 app.use(session({secret:'3245tr,gfewere4re3e4d98eyoiul438p'}))
 app.use(grant)
