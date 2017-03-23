@@ -183,8 +183,8 @@ router.get('/playtoggle/:device_id', function(req, res) {
   
   // Toggle Playback
   getDeviceNamebyID(req.params.device_id, function(deviceName){
-
-    request(BASESERVER + ':' +  port + '/sonos/status/' + deviceName, function (error, response, body) {
+    // Call the status endpoint to see the current playback state of the sonos device
+    request(BASESERVER + ':' +  port + '/sonos/status/' + deviceName + '?skiplookup=true', function (error, response, body) {
       if (!error && response.statusCode == 200 && response.body != 'Not Started or Connected') {
         sonosRequestData = JSON.parse(body);
         if (sonosRequestData["current_transport_state"] == 'PAUSED_PLAYBACK'){
