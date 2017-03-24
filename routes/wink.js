@@ -7,6 +7,7 @@ var WINK_HTTP_SERVER = "https://api.wink.com/"
 var morgan = require('morgan');
 router.use(morgan('dev'));
 
+// convert Wink response into Wink HoloHub Object friendly response
 function winkSummary(body, callback) {
     winkRequestData = body;
     var winkSendData = {}
@@ -22,6 +23,13 @@ function winkSummary(body, callback) {
     //return callback(winkSendData); -- everything will need to be changed
     return callback(winkSendData);
 }
+
+// Convert a vumark_id to a Wink device ID (the device_type/device_id/name)
+function getDeviceIDbyVumarkID(vumark_id, callback) {
+
+    
+
+};
 
 // GET test page
 router.get('/', function(req,res){
@@ -68,9 +76,20 @@ router.get('/status/:vumark_id', function(req, res) {
 
     //Johan wants name and desired_state object and vumark_id
     //var winkRequestData;
+
+    /*
+    getDevicebyID(req.params.vumark, function(returnObject) {
+        var device_id = returnObject.device_id;
+        var device_type = returnObject.device_type;
+
+        //request needs to go in here
+
+    });
+    */
     console.log(req.params.vumark_id);
     request({
         method: 'GET',
+        //url: WINK_HTTP_SERVER + device_type + '/' + device_id,
         url: WINK_HTTP_SERVER + 'light_bulbs/' + req.params.vumark_id, //hardcoded with light bulbs rn
         headers: {
             'Content-Type': 'application/json',
@@ -107,7 +126,7 @@ router.post('/change_state/:vumark_id', function(req, res) {
         desired_state: Object (JSON)
     }
     
-    getDevicebyID(req.body.vumark, function(returnObject){
+    getDevicebyID(req.params.vumark, function(returnObject){
 
             LOGIC GOES HERE
             var 1 = returnObject.device_id ==> WINK DEVICE
@@ -137,10 +156,10 @@ router.post('/change_state/:vumark_id', function(req, res) {
     
     request(options, function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            console.log("request", options.body);
+            //console.log("request", options.body);
             console.log('Status:', response.statusCode);
-            console.log('Headers:', JSON.stringify(response.headers));
-            console.log('Response:', body);
+            //console.log('Headers:', JSON.stringify(response.headers));
+            //console.log('Response:', body);
             res.json({ message: 'Change State'});
         } else {
             console.log(error + ' ' + response.statusCode)
