@@ -7,19 +7,20 @@ var WINK_HTTP_SERVER = "https://api.wink.com/"
 var morgan = require('morgan');
 router.use(morgan('dev'));
 
-function winkSummary(body) {
+function winkSummary(body, callback) {
     winkRequestData = body;
     var winkSendData = {}
 
-    //winkSendData["device_type"] = winkRequestData.device_type;
-    //winkSendData["device_id"] = winkRequestData.device_id;
-    winkSendData["name"] = winkRequestData.name;
-    winkSendData["desired_state"] = winkRequestData.desired_state;
+    winkSendData["device_type"] = winkRequestData.data.object_type;
+    winkSendData["device_id"] = winkRequestData.data.object_id;
+    winkSendData["name"] = winkRequestData.data.name;
+    winkSendData["desired_state"] = winkRequestData.data.desired_state;
     //winkSendData["subscription"] = winkRequestData.subscription;
 
     //winkSendData["count"] = winkRequestData.pagination.count;
     //console.log(winkSendData["count"]);
-    return winkSendData;
+    //return callback(winkSendData); -- everything will need to be changed
+    return callback(winkSendData);
 }
 
 // GET test page
@@ -67,9 +68,10 @@ router.get('/status/:vumark_id', function(req, res) {
 
     //Johan wants name and desired_state object and vumark_id
     //var winkRequestData;
+    console.log(req.params.vumark_id);
     request({
         method: 'GET',
-        url: WINK_HTTP_SERVER + 'light_bulbs/' + req.body.vumark_id, //hardcoded with light bulbs rn
+        url: WINK_HTTP_SERVER + 'light_bulbs/' + req.params.vumark_id, //hardcoded with light bulbs rn
         headers: {
             'Content-Type': 'application/json',
             'Authorization': WINK_AUTHORIZATION
@@ -80,15 +82,17 @@ router.get('/status/:vumark_id', function(req, res) {
             console.log('Headers:', JSON.stringify(response.headers));
             console.log('Response:', body);
 
-            var winky = winkSummary(JSON.parse(body));
+            winkSummary(JSON.parse(body), function(winky){
+                //this will wait for winkSummary response to happen
+                winky["vumark_id"] = req.params.vumark_id;
 
-            winky["vumark_id"] = req.params.vumark_id;
+                res.json(winky);
+            });
 
-            res.json(winky);
-            res.json({ message: 'Light bulb id ' + req.body.device_id });
+            //res.json({ message: 'Light bulb id ' + req.body.device_id });
         } else {
             res.send(500, "Not started or connected")
-            res.json({ message: 'Light bulb id ' + req.body.device_id });
+            //res.json({ message: 'Light bulb id ' + req.body.device_id });
         }
     });
 
