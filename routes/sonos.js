@@ -86,8 +86,13 @@ router.route('/')
     // TODO: ######## CHECK TO SEE IF DEVICE ALREADY EXISTS IN RECORD!!!!! ##############
     
     var sonos = new SonosDM();  // Create new instance of a sonos object
-    sonos._id = req.body._id
-    sonos.device_id = req.body.device_id
+
+    if(_id in req.body)
+      sonos._id = req.body._id
+    if(device_id in req.body)
+      sonos.device_id = req.body.device_id
+    if(controller in req.body)
+      sonos.controller = req.body.controller
 
     // Lookup sonos state data calling device_id. Verify that the connection can be made.
     request(BASESERVER + ":" + port + '/sonos/status/' + sonos.device_id + '?skiplookup=true', function (error, response, body) {
@@ -108,8 +113,6 @@ router.route('/')
   });
 
   //Need to add a PUT for the HoloLens to update the JSON file reference so that controller String is saved.
-
-
 
 //Update Device or Get Device by Vuforia ID
 router.route('/byId/:vumark_id')
