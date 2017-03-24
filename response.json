@@ -1,0 +1,316 @@
+{
+  "data": [
+    {
+      "uuid": "386f48cb-685b-4452-88af-fa41cb0d43c6",
+      "desired_state": {
+        "pairing_mode": null,
+        "pairing_device_type_selector": null,
+        "pairing_mode_duration": 0,
+        "led_brightness": null
+      },
+      "last_reading": {
+        "connection": true,
+        "connection_updated_at": 1490304745.348642,
+        "agent_session_id": "5bbd87a20aacfd586c0199e67fb21455",
+        "agent_session_id_updated_at": 1490304678.215249,
+        "pairing_mode": null,
+        "pairing_mode_updated_at": 1490304745.348642,
+        "pairing_device_type_selector": null,
+        "pairing_device_type_selector_updated_at": null,
+        "kidde_radio_code_updated_at": 1484861519.534063,
+        "pairing_mode_duration": 0,
+        "pairing_mode_duration_updated_at": 1490304745.348642,
+        "led_brightness": null,
+        "led_brightness_updated_at": 1490304745.348642,
+        "updating_firmware": false,
+        "updating_firmware_updated_at": 1490304675.7287354,
+        "firmware_version": "3.5.20-0-g81f691290b-hub-app",
+        "firmware_version_updated_at": 1490304679.1315491,
+        "update_needed": false,
+        "update_needed_updated_at": 1490304679.1315491,
+        "mac_address": "B4:79:A7:25:8E:B1",
+        "mac_address_updated_at": 1490304679.1315491,
+        "zigbee_mac_address": "000D6F000C7D3F57",
+        "zigbee_mac_address_updated_at": 1490304745.348642,
+        "ip_address": "192.168.0.102",
+        "ip_address_updated_at": 1490304679.1315491,
+        "hub_version": "00.01",
+        "hub_version_updated_at": 1490304679.1315491,
+        "app_version": "0.1.0",
+        "app_version_updated_at": 1490304679.1315491,
+        "transfer_mode": null,
+        "transfer_mode_updated_at": 1490304678.215249,
+        "connection_type": "wifi",
+        "connection_type_updated_at": 1490304745.348642,
+        "wifi_credentials_present": true,
+        "wifi_credentials_present_updated_at": 1490304745.348642,
+        "remote_pairable": null,
+        "remote_pairable_updated_at": null,
+        "local_control_public_key_hash": "FD:97:3E:89:FC:4E:D6:63:A3:02:DA:73:83:2B:6E:82:EE:F6:56:EB:0D:D4:55:D7:3B:26:0E:49:37:66:AA:ED",
+        "local_control_public_key_hash_updated_at": 1490304709.9430952,
+        "local_control_id": "3ca11c9d-8a4c-4894-8262-c156b88a2845",
+        "local_control_id_updated_at": 1490304709.9430952,
+        "desired_pairing_mode_updated_at": 1490304726.4295912,
+        "desired_pairing_device_type_selector_updated_at": 1490304886.1695068,
+        "desired_kidde_radio_code_updated_at": 1490304886.1695068,
+        "desired_pairing_mode_duration_updated_at": 1490304726.4295912,
+        "desired_led_brightness_updated_at": 1490304886.1695068,
+        "updating_firmware_changed_at": 1490304458.8643231,
+        "connection_changed_at": 1490304675.7287354,
+        "agent_session_id_changed_at": 1490304678.215249,
+        "desired_pairing_mode_changed_at": 1490304726.4295912,
+        "desired_pairing_mode_duration_changed_at": 1490304726.4295912,
+        "desired_led_brightness_changed_at": 1490303512.4991143,
+        "firmware_version_changed_at": 1490304460.3289635,
+        "update_needed_changed_at": 1490304460.3289635,
+        "connection_type_changed_at": 1490304460.5404446,
+        "wifi_credentials_present_changed_at": 1490304460.5404446,
+        "pairing_mode_changed_at": 1490304745.348642,
+        "pairing_mode_duration_changed_at": 1490304745.348642
+      },
+      "subscription": {
+        "pubnub": {
+          "subscribe_key": "sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe",
+          "channel": "db72e2b2c3e3ea95857371b8e38401afdcc517d4|hub-583987|user-616119"
+        }
+      },
+      "hub_id": "583987",
+      "name": "Hub",
+      "locale": "en_us",
+      "units": {},
+      "created_at": 1484861518,
+      "hidden_at": null,
+      "capabilities": {
+        "supports_ble": true,
+        "oauth2_clients": [
+          "wink_hub"
+        ],
+        "home_security_device": true,
+        "provisioning_version": "8a",
+        "needs_wifi_network_list": true
+      },
+      "triggers": [],
+      "manufacturer_device_model": "wink_hub",
+      "manufacturer_device_id": null,
+      "device_manufacturer": "wink",
+      "model_name": "Hub",
+      "upc_id": "15",
+      "upc_code": "840410102358",
+      "primary_upc_code": "wink_hub",
+      "lat_lng": [
+        42.349238,
+        -71.106442
+      ],
+      "location": "Boston University",
+      "update_needed": false,
+      "configuration": {
+        "kidde_radio_code": 0
+      }
+    },
+    {
+      "uuid": "d43a2ce5-596e-46bd-be13-e5211ef373f2",
+      "desired_state": {},
+      "last_reading": {
+        "connection": true,
+        "connection_updated_at": 1490304770.352029,
+        "connection_changed_at": 1490257280.2659233
+      },
+      "subscription": {
+        "pubnub": {
+          "subscribe_key": "sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe",
+          "channel": "4f575bb9ee3e05d759bf38ecc9a03f43b231e39c|powerstrip-36581|user-616119"
+        }
+      },
+      "powerstrip_id": "36581",
+      "name": "Pivot Power Genius",
+      "locale": "en_us",
+      "units": {},
+      "created_at": 1489934417,
+      "hidden_at": null,
+      "capabilities": {
+        "automates_children": true,
+        "supports_electric_imp": true,
+        "needs_wifi_network_list": true
+      },
+      "triggers": [],
+      "device_manufacturer": "quirky_ge",
+      "model_name": "Pivot Power Genius",
+      "upc_id": "529",
+      "upc_code": "quirky_ge_pivot_power_genius",
+      "primary_upc_code": "quirky_ge_pivot_power_genius",
+      "lat_lng": [
+        42.349238,
+        -71.106442
+      ],
+      "location": "Boston University",
+      "mac_address": "0c2a690309c9",
+      "serial": "AAAA00004773",
+      "outlets": [
+        {
+          "powered": true,
+          "scheduled_outlet_states": [],
+          "name": "Outlet #1",
+          "outlet_index": 0,
+          "outlet_id": "73162",
+          "icon_id": "4",
+          "uuid": "d43a2ce5-596e-46bd-be13-e5211ef373f2_0",
+          "parent_object_type": "powerstrip",
+          "parent_object_id": "36581",
+          "desired_state": {
+            "powered": true
+          },
+          "last_reading": {
+            "powered": true,
+            "powered_updated_at": 1490304770.331357,
+            "powered_changed_at": 1490304770.132784,
+            "desired_powered_updated_at": 1490304770.1401904
+          }
+        },
+        {
+          "powered": false,
+          "scheduled_outlet_states": [],
+          "name": "Outlet #2",
+          "outlet_index": 1,
+          "outlet_id": "73163",
+          "icon_id": "4",
+          "uuid": "d43a2ce5-596e-46bd-be13-e5211ef373f2_1",
+          "parent_object_type": "powerstrip",
+          "parent_object_id": "36581",
+          "desired_state": {
+            "powered": false
+          },
+          "last_reading": {
+            "powered": false,
+            "powered_updated_at": 1490304770.3436296,
+            "powered_changed_at": 1490299594.692699,
+            "desired_powered_updated_at": 1490299747.5098832
+          }
+        }
+      ]
+    },
+    {
+      "uuid": "56dd46dc-305a-4bc9-80c7-012a0b239b33",
+      "desired_state": {
+        "powered": true,
+        "brightness": 1
+      },
+      "last_reading": {
+        "connection": true,
+        "connection_updated_at": 1490305963.9360178,
+        "firmware_version": "0.1b03 / 0.4b00",
+        "firmware_version_updated_at": 1490305963.9360178,
+        "firmware_date_code": "20140812",
+        "firmware_date_code_updated_at": 1490305963.9360178,
+        "powered": true,
+        "powered_updated_at": 1490305963.9360178,
+        "brightness": 1,
+        "brightness_updated_at": 1490305963.9360178,
+        "desired_powered_updated_at": 1490305963.9052923,
+        "desired_brightness_updated_at": 1490305963.9052923,
+        "powered_changed_at": 1490305963.8765132,
+        "brightness_changed_at": 1490303972.8121576,
+        "connection_changed_at": 1490304745.6934264,
+        "desired_powered_changed_at": 1490305963.9052923,
+        "desired_brightness_changed_at": 1490305963.9052923,
+        "firmware_date_code_changed_at": 1490304745.6934264,
+        "firmware_version_changed_at": 1490304745.6934264
+      },
+      "subscription": {
+        "pubnub": {
+          "subscribe_key": "sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe",
+          "channel": "ab6a481d06f81d80acfab707eddb42bf60faf75e|light_bulb-2566198|user-616119"
+        }
+      },
+      "light_bulb_id": "2566198",
+      "name": "GE Link Bulb",
+      "locale": "en_us",
+      "units": {},
+      "created_at": 1490303972,
+      "hidden_at": null,
+      "capabilities": {},
+      "triggers": [],
+      "manufacturer_device_model": "ge_zigbee_light",
+      "manufacturer_device_id": null,
+      "device_manufacturer": "ge",
+      "model_name": "GE Light Bulb",
+      "upc_id": "483",
+      "upc_code": "ge_zigbee4",
+      "primary_upc_code": "ge_zigbee",
+      "gang_id": null,
+      "hub_id": "583987",
+      "local_id": "2",
+      "radio_type": "zigbee",
+      "linked_service_id": null,
+      "lat_lng": [
+        null,
+        null
+      ],
+      "location": "",
+      "order": 0
+    },
+    {
+      "uuid": "f1da45a9-7971-428d-a982-c2a3977a257f",
+      "desired_state": {
+        "powered": true,
+        "brightness": 1
+      },
+      "last_reading": {
+        "connection": true,
+        "connection_updated_at": 1490304817.552526,
+        "firmware_version": "0.1b03 / 0.4b00",
+        "firmware_version_updated_at": 1490304817.552526,
+        "firmware_date_code": "20140812",
+        "firmware_date_code_updated_at": 1490304817.552526,
+        "powered": true,
+        "powered_updated_at": 1490304817.552526,
+        "brightness": 1,
+        "brightness_updated_at": 1490304817.552526,
+        "desired_powered_updated_at": 1490304817.4090357,
+        "desired_brightness_updated_at": 1490304808.7212086,
+        "powered_changed_at": 1490304817.3678656,
+        "brightness_changed_at": 1490304746.0112145,
+        "connection_changed_at": 1490304746.2618582,
+        "firmware_date_code_changed_at": 1490304750.531249,
+        "firmware_version_changed_at": 1490304750.531249,
+        "desired_powered_changed_at": 1490304817.4090357,
+        "desired_brightness_changed_at": 1490304808.7212086
+      },
+      "subscription": {
+        "pubnub": {
+          "subscribe_key": "sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe",
+          "channel": "8ae17654e3fc4b96a08ae5c8d8604f2cfc7d5e19|light_bulb-2566217|user-616119"
+        }
+      },
+      "light_bulb_id": "2566217",
+      "name": "GE Link Bulb",
+      "locale": "en_us",
+      "units": {},
+      "created_at": 1490304746,
+      "hidden_at": null,
+      "capabilities": {},
+      "triggers": [],
+      "manufacturer_device_model": "ge_zigbee_light",
+      "manufacturer_device_id": null,
+      "device_manufacturer": "ge",
+      "model_name": "GE Light Bulb",
+      "upc_id": "483",
+      "upc_code": "ge_zigbee4",
+      "primary_upc_code": "ge_zigbee",
+      "gang_id": null,
+      "hub_id": "583987",
+      "local_id": "3",
+      "radio_type": "zigbee",
+      "linked_service_id": null,
+      "lat_lng": [
+        42.349238,
+        -71.106442
+      ],
+      "location": "Boston University",
+      "order": 0
+    }
+  ],
+  "errors": [],
+  "pagination": {
+    "count": 4
+  }
+}
