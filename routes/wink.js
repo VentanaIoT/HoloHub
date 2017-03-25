@@ -13,10 +13,24 @@ function winkSummary(body, callback) {
     winkRequestData = body;
     var winkSendData = {}
 
-    winkSendData["device_type"] = winkRequestData.data.object_type;
+    winkSendData["device_type"] = winkRequestData.data.object_type + "s";
     winkSendData["device_id"] = winkRequestData.data.object_id;
+
+    if (winkRequestData.data.object_type == "powerstrip"){
+        winkSendData["outlets"] = [];
+        //tempWink = winkRequestData.data.outlets;
+        winkRequestData.data.outlets.forEach(function (item, index){
+            var tempWink = {};
+            tempWink["outlet_id"] = item.outlet_id;
+            tempWink["outlet_index"] = item.outlet_index;
+            tempWink["name"] = item.name;
+            winkSendData.outlets[index] = tempWink;
+        })
+    }
+
     winkSendData["name"] = winkRequestData.data.name;
     winkSendData["desired_state"] = winkRequestData.data.desired_state;
+    winkSendData["_id"] = winkRequestData.data._id;
 
     return callback(winkSendData);
 }
@@ -30,7 +44,7 @@ function getDeviceIDbyVumarkID(vumark_id, callback) {
             console.log(err);
             return callback(null);
         } else if (wink) {
-            return callback(wink.device_id);
+            return callback(wink);
         } else {
             return callback(null);
         }
@@ -57,10 +71,10 @@ router.route('/')
 
     .get(function(req,res){
         if (WINK_AUTHORIZATION != null) {
-            console.log(WINK_AUTHORIZATION)
+            //console.log(WINK_AUTHORIZATION)
             res.json({ message: 'Connected to Wink Module'});
         } else {
-            console.log("WINK_AUTHORIZATION is null");
+            //console.log("WINK_AUTHORIZATION is null");
             res.json({message: 'Not connected to Wink!'});
         }
     })
@@ -98,7 +112,7 @@ router.route('/')
                         res.json({message: 'WinkDM object created!'});
                     };
                 });
-                res.json(JSON.parse(body));
+                res.json((JSON.parse(body)).data);
             } else {
                 console.log("error in POST")
                 //res.send(statusCode=500, "Not Started or Connected");
@@ -143,6 +157,14 @@ router.get('/wink_devices', function(req, res){
                     console.log("Device type not supported");
                 }
                 deviceTemp["name"] = item.name;
+                /*getVumarkByDeviceID(deviceTemp["device_id"], function (returnObject){
+                    if (returnObject != null) {
+                        // this device has a vumark id linked to item
+                        deviceTemp["_id"] = returnObject;
+                    } else {
+                        deviceTemp["_id"] = null;
+                    }
+                });*/
                 winkDevices.device_list[index] = deviceTemp;
             });
 
@@ -161,9 +183,9 @@ router.get('/status/:vumark_id', function(req, res) {
     //var winkRequestData;
 
     
-    getDevicebyID(req.params.vumark, function(returnObject) {
-        var device_id = returnObject.device_id;
-        var device_type = returnObject.device_type;
+    getDeviceIDbyVumarkID(req.params.vumark_id, function(returnObject) {
+        var device_id = returnObject._doc.device_id;
+        var device_type = returnObject._doc.device_type;
 
         console.log(req.params.vumark_id);
         request({
@@ -182,7 +204,7 @@ router.get('/status/:vumark_id', function(req, res) {
 
                 winkSummary(JSON.parse(body), function(winky){
                     //this will wait for winkSummary response to happen
-                    winky["vumark_id"] = req.params.vumark_id;
+                    winky["_id"] = req.params.vumark_id;
 
                     res.json(winky);
                 });
@@ -203,47 +225,41 @@ router.post('/change_state/:vumark_id', function(req, res) {
     /* {
         vumarkID: string, 
         desired_state: Object (JSON)
-    }
+    }*/
     
-    getDevicebyID(req.params.vumark_id, function(returnObject){
+    getDeviceIDbyVumarkID(req.params.vumark_id, function(returnObject){
+        var device_id = returnObject._doc.device_id;
+        var device_type = returnObject._doc.device_type;
+        
+        //console.log(JSON.stringify(req.body));
+        //console.log(JSON.parse(req.body))
 
-            LOGIC GOES HERE
-            var 1 = returnObject.device_id ==> WINK DEVICE
-            var 2 =returnObject.device_type  --> WINK DEVICE TYPE
+        var options = {
+            method: 'PUT',
+            //url: WINK_HTTP_SERVER + req.body.device_type + '/' + req.body.device_id + '/desired_state',
+            url: WINK_HTTP_SERVER + device_type + '/' + device_id + '/desired_state',
+            headers: {
+                'Content-Type': 'application/json', 
+                //'Authorization': req.body.Authorization 
+                Authorization : WINK_AUTHORIZATION
+            },
+            body: req.body,
+            json: true
+        };
+        
+        request(options, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                //console.log("request", options.body);
+                console.log('Status:', response.statusCode);
+                //console.log('Headers:', JSON.stringify(response.headers));
+                //console.log('Response:', body);
+                res.json({ message: 'Change State'});
+            } else {
+                console.log(error + ' ' + response.statusCode)
+                res.json({ message: 'Error State'});
+            }        
+        });
 
-           [here]
-
-           options request goes heren\ like put to wink
-
-    });
-
-
-    */
-
-    var options = {
-        method: 'PUT',
-        //url: WINK_HTTP_SERVER + req.body.device_type + '/' + req.body.device_id + '/desired_state',
-        url: WINK_HTTP_SERVER + 'light_bulbs/' + req.params.vumark_id + '/desired_state',
-        headers: {
-            'Content-Type': 'application/json', 
-            //'Authorization': req.body.Authorization 
-            Authorization : WINK_AUTHORIZATION
-        },
-        body: JSON.parse(req.body.value),
-        json: true
-    };
-    
-    request(options, function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            //console.log("request", options.body);
-            console.log('Status:', response.statusCode);
-            //console.log('Headers:', JSON.stringify(response.headers));
-            //console.log('Response:', body);
-            res.json({ message: 'Change State'});
-        } else {
-            console.log(error + ' ' + response.statusCode)
-            res.json({ message: 'Error State'});
-        }        
     });
 
     
