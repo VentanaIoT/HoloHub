@@ -87,11 +87,11 @@ router.route('/')
     
     var sonos = new SonosDM();  // Create new instance of a sonos object
 
-    if(_id in req.body)
+    if("_id" in req.body)
       sonos._id = req.body._id
-    if(device_id in req.body)
+    if("device_id" in req.body)
       sonos.device_id = req.body.device_id
-    if(controller in req.body)
+    if("controller" in req.body)
       sonos.controller = req.body.controller
 
     // Lookup sonos state data calling device_id. Verify that the connection can be made.
