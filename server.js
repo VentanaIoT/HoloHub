@@ -13,6 +13,29 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 io.set('transports', ['websocket']);
 
+//PubNub Notifications
+var PubNub = require('pubnub')
+var pubnub = new PubNub({
+    subscribeKey: "sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe",
+    ssl: true
+});
+
+pubnub.addListener({
+    status: function(statusEvent) {
+        if (statusEvent.category === "PNConnectedCategory") {
+            console.log("Connected to nubPub");
+        }
+    },
+    message: function(message) {
+        console.log("New Message!!", message);
+    }
+})      
+    
+    console.log("Subscribing..");
+pubnub.subscribe({
+        channels: ['ab6a481d06f81d80acfab707eddb42bf60faf75e|light_bulb-2566198|user-616119'] 
+});
+
 // Session for Grant OAUTH
 app.use(session({
     secret:'3245tr,gfewere4re3e4d98eyoiul438p',
