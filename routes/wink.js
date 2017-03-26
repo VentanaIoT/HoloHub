@@ -24,12 +24,13 @@ function winkSummary(body, callback) {
             tempWink["outlet_id"] = item.outlet_id;
             tempWink["outlet_index"] = item.outlet_index;
             tempWink["name"] = item.name;
+            //needs powered field?
             winkSendData.outlets[index] = tempWink;
         })
     }
 
     winkSendData["name"] = winkRequestData.data.name;
-    winkSendData["desired_state"] = winkRequestData.data.desired_state;
+    winkSendData["powered"] = winkRequestData.data.last_reading.powered;
     winkSendData["_id"] = winkRequestData.data._id;
 
     return callback(winkSendData);
@@ -186,8 +187,10 @@ router.get('/status/:vumark_id', function(req, res) {
     getDeviceIDbyVumarkID(req.params.vumark_id, function(returnObject) {
         var device_id = returnObject._doc.device_id;
         var device_type = returnObject._doc.device_type;
+        var RIP = returnObject._doc.desired_state;
 
         console.log(req.params.vumark_id);
+        console.log(WINK_HTTP_SERVER + device_type + '/' + device_id);
         request({
             method: 'GET',
             url: WINK_HTTP_SERVER + device_type + '/' + device_id,
@@ -196,13 +199,14 @@ router.get('/status/:vumark_id', function(req, res) {
                 'Content-Type': 'application/json',
                 'Authorization': WINK_AUTHORIZATION
             },
+            json: true
         }, function(error, response, body) {
             if (!error && response.statusCode == 200) {     
-                console.log('Status:', response.statusCode);
-                console.log('Headers:', JSON.stringify(response.headers));
+                //console.log('Status:', response.statusCode);
+                //console.log('Headers:', JSON.stringify(response.headers));
                 console.log('Response:', body);
-
-                winkSummary(JSON.parse(body), function(winky){
+                //console.log(JSON.stringify(body.data.desired_state));
+                winkSummary(body, function(winky){
                     //this will wait for winkSummary response to happen
                     winky["_id"] = req.params.vumark_id;
 
@@ -225,45 +229,68 @@ router.post('/change_state/:vumark_id', function(req, res) {
     getDeviceIDbyVumarkID(req.params.vumark_id, function(returnObject){
         var device_id = returnObject._doc.device_id;
         var device_type = returnObject._doc.device_type;
-        var previous_state = returnObject._doc.desired_state;
         
-        var new_state; 
-        if (previous_state.desired_state.powered) {
-            new_state = { "desired_state" : {"powered" : false}};
-        } else {
-            new_state = { "desired_state" : {"powered" : true}};
-        }
+        var last_state; 
 
-        var options = {
-            method: 'PUT',
-            //url: WINK_HTTP_SERVER + req.body.device_type + '/' + req.body.device_id + '/desired_state',
-            url: WINK_HTTP_SERVER + device_type + '/' + device_id + '/desired_state',
+        request({
+            method: 'GET',
+            url: WINK_HTTP_SERVER + device_type + '/' + device_id,
             headers: {
                 'Content-Type': 'application/json', 
                 //'Authorization': req.body.Authorization 
                 Authorization : WINK_AUTHORIZATION
             },
-            //body: req.body,
-            body: new_state,
             json: true
-        };
-        
-        request(options, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-                //console.log("request", options.body);
-                console.log('Status:', response.statusCode);
+          }, function(error, response, body) {
+            if (!error && response.statusCode == 200) {     
+                //console.log('Status:', response.statusCode);
                 //console.log('Headers:', JSON.stringify(response.headers));
-                //console.log('Response:', body);
-                res.json({ message: 'Change State'});
+                console.log('Response:', body);
+                last_state = body.data.last_reading.powered;
+                res.send({"message" : "okie this worked"});
+
+                if (last_state == true) {
+                    new_state = { "desired_state" : {"powered" : false}};
+                } else {
+                    new_state = { "desired_state" : {"powered" : true}};
+                }
+
+                var options = {
+                    method: 'PUT',
+                    //url: WINK_HTTP_SERVER + req.body.device_type + '/' + req.body.device_id + '/desired_state',
+                    url: WINK_HTTP_SERVER + device_type + '/' + device_id + '/desired_state',
+                    headers: {
+                        'Content-Type': 'application/json', 
+                        //'Authorization': req.body.Authorization 
+                        Authorization : WINK_AUTHORIZATION
+                    },
+                    //body: req.body,
+                    body: new_state,
+                    json: true
+                };
+
+                console.log(JSON.stringify(new_state));
+                
+                request(options, function (error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        //console.log("request", options.body);
+                        console.log('Status:', response.statusCode);
+                        //console.log('Headers:', JSON.stringify(response.headers));
+                        //console.log('Response:', body);
+                        res.json({ message: 'Change State'});
+                    } else {
+                        console.log(error + ' ' + response.statusCode)
+                        res.json({ message: 'Error State'});
+                    }        
+                });
             } else {
-                console.log(error + ' ' + response.statusCode)
-                res.json({ message: 'Error State'});
-            }        
+                    res.send(500, "RIP")
+                    //res.json({ message: 'Light bulb id ' + req.body.device_id });
+            }
         });
 
     });
 
-    
 });
 
 module.exports = router;
