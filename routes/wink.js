@@ -231,6 +231,7 @@ router.post('/change_state/:vumark_id', function(req, res) {
         var device_type = returnObject._doc.device_type;
         
         var last_state; 
+        //var last_brightness;
 
         request({
             method: 'GET',
@@ -247,7 +248,8 @@ router.post('/change_state/:vumark_id', function(req, res) {
                 //console.log('Headers:', JSON.stringify(response.headers));
                 console.log('Response:', body);
                 last_state = body.data.last_reading.powered;
-                res.send({"message" : "okie this worked"});
+                //last_brightness = body.data.last_reading.brightness;
+                //res.send({"message" : "okie this worked"});
 
                 if (last_state == true) {
                     new_state = { "desired_state" : {"powered" : false}};
@@ -276,8 +278,8 @@ router.post('/change_state/:vumark_id', function(req, res) {
                         //console.log("request", options.body);
                         console.log('Status:', response.statusCode);
                         //console.log('Headers:', JSON.stringify(response.headers));
-                        //console.log('Response:', body);
-                        res.json({ message: 'Change State'});
+                        console.log('Response:', body);
+                        res.send({ message: 'Change State'});
                     } else {
                         console.log(error + ' ' + response.statusCode)
                         res.json({ message: 'Error State'});
