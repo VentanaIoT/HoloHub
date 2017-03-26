@@ -222,17 +222,17 @@ router.get('/status/:vumark_id', function(req, res) {
 // uses PUT to change the state for the particular device
 router.post('/change_state/:vumark_id', function(req, res) {
     
-    /* {
-        vumarkID: string, 
-        desired_state: Object (JSON)
-    }*/
-    
     getDeviceIDbyVumarkID(req.params.vumark_id, function(returnObject){
         var device_id = returnObject._doc.device_id;
         var device_type = returnObject._doc.device_type;
+        var previous_state = returnObject._doc.desired_state;
         
-        //console.log(JSON.stringify(req.body));
-        //console.log(JSON.parse(req.body))
+        var new_state; 
+        if (previous_state.desired_state.powered) {
+            new_state = { "desired_state" : {"powered" : false}};
+        } else {
+            new_state = { "desired_state" : {"powered" : true}};
+        }
 
         var options = {
             method: 'PUT',
@@ -243,7 +243,8 @@ router.post('/change_state/:vumark_id', function(req, res) {
                 //'Authorization': req.body.Authorization 
                 Authorization : WINK_AUTHORIZATION
             },
-            body: req.body,
+            //body: req.body,
+            body: new_state,
             json: true
         };
         
