@@ -224,7 +224,7 @@ router.get('/status/:vumark_id', function(req, res) {
 });
 
 // uses PUT to change the state for the particular device
-router.post('/change_state/:vumark_id', function(req, res) {
+router.post('/change_power/:vumark_id', function(req, res) {
     
     getDeviceIDbyVumarkID(req.params.vumark_id, function(returnObject){
         var device_id = returnObject._doc.device_id;
@@ -256,6 +256,81 @@ router.post('/change_state/:vumark_id', function(req, res) {
                 } else {
                     new_state = { "desired_state" : {"powered" : true}};
                 }
+
+                var options = {
+                    method: 'PUT',
+                    //url: WINK_HTTP_SERVER + req.body.device_type + '/' + req.body.device_id + '/desired_state',
+                    url: WINK_HTTP_SERVER + device_type + '/' + device_id + '/desired_state',
+                    headers: {
+                        'Content-Type': 'application/json', 
+                        //'Authorization': req.body.Authorization 
+                        Authorization : WINK_AUTHORIZATION
+                    },
+                    //body: req.body,
+                    body: new_state,
+                    json: true
+                };
+
+                console.log(JSON.stringify(new_state));
+                
+                request(options, function (error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        //console.log("request", options.body);
+                        console.log('Status:', response.statusCode);
+                        //console.log('Headers:', JSON.stringify(response.headers));
+                        console.log('Response:', body);
+                        res.send({ message: 'Change State'});
+                    } else {
+                        console.log(error + ' ' + response.statusCode)
+                        res.json({ message: 'Error State'});
+                    }        
+                });
+            } else {
+                    res.send(500, "RIP")
+                    //res.json({ message: 'Light bulb id ' + req.body.device_id });
+            }
+        });
+
+    });
+
+});
+
+// changes brightness
+router.post('/change_brightness/:vumark_id', function(req, res) {
+    
+    getDeviceIDbyVumarkID(req.params.vumark_id, function(returnObject){
+        var device_id = returnObject._doc.device_id;
+        var device_type = returnObject._doc.device_type;
+        
+        var state;
+        var amount_change_brightness = req.body.value/100.0;
+
+        request({
+            method: 'GET',
+            url: WINK_HTTP_SERVER + device_type + '/' + device_id,
+            headers: {
+                'Content-Type': 'application/json', 
+                //'Authorization': req.body.Authorization 
+                Authorization : WINK_AUTHORIZATION
+            },
+            json: true
+          }, function(error, response, body) {
+            if (!error && response.statusCode == 200) {     
+                //console.log('Status:', response.statusCode);
+                //console.log('Headers:', JSON.stringify(response.headers));
+                console.log('Response:', body);
+                state = parseFloat(body.data.last_reading.brightness);
+                //res.send({"message" : "okie this worked"});
+                if (amount_change_brightness != 0) {
+                     state += amount_change_brightness;
+                    if (state < 0) {
+                        state = 0.0;
+                    } else if (state > 1.0) {
+                        state = 1.0;
+                    }
+                }
+                
+                new_state = { "desired_state" : {"brightness" : state}};
 
                 var options = {
                     method: 'PUT',
