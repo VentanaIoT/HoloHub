@@ -11,8 +11,8 @@
   "author": "Ventana IoT - 2017",
   "license": "MIT",
   "dependencies": {
-    "body-parser": "^1.0.2",
-    "express": "^4.0.0",
+    "body-parser": "~1.0.1",
+    "express": "~4.0.0",
     "express-session": "^1.15.1",
     "grant": "^3.7.1",
     "grant-express": "^3.7.1",
