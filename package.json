@@ -18,6 +18,7 @@
     "grant-express": "^3.7.1",
     "mongoose": "~4.6.8",
     "morgan": "~1.0.0",
+    "pubnub": "^4.5.0",
     "socketio": "^1.0.0"
   }
 }
