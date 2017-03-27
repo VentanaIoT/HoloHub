@@ -27,6 +27,7 @@ pubnub.addListener({
         }
     },
     message: function(message) {
+        newDesiredState = JSON.parse(message).desired_state
         console.log("New Message!!", message);
     }
 })      
