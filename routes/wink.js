@@ -18,19 +18,16 @@ function winkSummary(body, callback) {
 
     if (winkRequestData.data.object_type == "powerstrip"){
         winkSendData["outlets"] = [];
-        //tempWink = winkRequestData.data.outlets;
         winkRequestData.data.outlets.forEach(function (item, index){
             var tempWink = {};
             tempWink["outlet_id"] = item.outlet_id;
             tempWink["outlet_index"] = item.outlet_index;
             tempWink["name"] = item.name;
-            //needs powered field?
             winkSendData.outlets[index] = tempWink;
         })
     }
 
     winkSendData["name"] = winkRequestData.data.name;
-    winkSendData["powered"] = winkRequestData.data.last_reading.powered;
     winkSendData["_id"] = winkRequestData.data._id;
 
     return callback(winkSendData);
@@ -95,7 +92,6 @@ router.route('/')
         /*if (req.body.controller != null){
             wink.controller = req.body.controller;
         }*/
-        //console.log(WINK_HTTP_SERVER + wink._doc.device_type + "/" + wink._doc.device_id);
 
         request({
             method: 'GET',
@@ -187,10 +183,10 @@ router.get('/status/:vumark_id', function(req, res) {
     getDeviceIDbyVumarkID(req.params.vumark_id, function(returnObject) {
         var device_id = returnObject._doc.device_id;
         var device_type = returnObject._doc.device_type;
-        var RIP = returnObject._doc.desired_state;
+        //var RIP = returnObject._doc.desired_state;
 
-        console.log(req.params.vumark_id);
-        console.log(WINK_HTTP_SERVER + device_type + '/' + device_id);
+        //console.log(req.params.vumark_id);
+        //console.log(WINK_HTTP_SERVER + device_type + '/' + device_id);
         request({
             method: 'GET',
             url: WINK_HTTP_SERVER + device_type + '/' + device_id,
@@ -204,7 +200,7 @@ router.get('/status/:vumark_id', function(req, res) {
             if (!error && response.statusCode == 200) {     
                 //console.log('Status:', response.statusCode);
                 //console.log('Headers:', JSON.stringify(response.headers));
-                console.log('Response:', body);
+                //console.log('Response:', body);
                 //console.log(JSON.stringify(body.data.desired_state));
                 winkSummary(body, function(winky){
                     //this will wait for winkSummary response to happen
@@ -229,7 +225,7 @@ router.post('/change_power/:vumark_id', function(req, res) {
     getDeviceIDbyVumarkID(req.params.vumark_id, function(returnObject){
         var device_id = returnObject._doc.device_id;
         var device_type = returnObject._doc.device_type;
-        
+
         var last_state; 
         //var last_brightness;
 
@@ -244,12 +240,13 @@ router.post('/change_power/:vumark_id', function(req, res) {
             json: true
           }, function(error, response, body) {
             if (!error && response.statusCode == 200) {     
-                //console.log('Status:', response.statusCode);
-                //console.log('Headers:', JSON.stringify(response.headers));
-                console.log('Response:', body);
-                last_state = body.data.last_reading.powered;
-                //last_brightness = body.data.last_reading.brightness;
-                //res.send({"message" : "okie this worked"});
+                if (device_type == "powerstrips"){
+                    device_type = "outlets";
+                    device_id = body.data.outlets[req.body.value].outlet_id;
+                    last_state = body.data.outlets[req.body.value].powered;
+                } else {
+                    last_state = body.data.last_reading.powered;
+                }
 
                 if (last_state == true) {
                     new_state = { "desired_state" : {"powered" : false}};
@@ -270,15 +267,9 @@ router.post('/change_power/:vumark_id', function(req, res) {
                     body: new_state,
                     json: true
                 };
-
-                console.log(JSON.stringify(new_state));
                 
                 request(options, function (error, response, body) {
                     if (!error && response.statusCode == 200) {
-                        //console.log("request", options.body);
-                        console.log('Status:', response.statusCode);
-                        //console.log('Headers:', JSON.stringify(response.headers));
-                        console.log('Response:', body);
                         res.send({ message: 'Change State'});
                     } else {
                         console.log(error + ' ' + response.statusCode)
@@ -315,12 +306,9 @@ router.post('/change_brightness/:vumark_id', function(req, res) {
             },
             json: true
           }, function(error, response, body) {
-            if (!error && response.statusCode == 200) {     
-                //console.log('Status:', response.statusCode);
-                //console.log('Headers:', JSON.stringify(response.headers));
-                console.log('Response:', body);
+            if (!error && response.statusCode == 200) {
                 state = parseFloat(body.data.last_reading.brightness);
-                //res.send({"message" : "okie this worked"});
+
                 if (amount_change_brightness != 0) {
                      state += amount_change_brightness;
                     if (state < 0) {
@@ -346,14 +334,14 @@ router.post('/change_brightness/:vumark_id', function(req, res) {
                     json: true
                 };
 
-                console.log(JSON.stringify(new_state));
+                //console.log(JSON.stringify(new_state));
                 
                 request(options, function (error, response, body) {
                     if (!error && response.statusCode == 200) {
                         //console.log("request", options.body);
-                        console.log('Status:', response.statusCode);
+                        //console.log('Status:', response.statusCode);
                         //console.log('Headers:', JSON.stringify(response.headers));
-                        console.log('Response:', body);
+                        //console.log('Response:', body);
                         res.send({ message: 'Change State'});
                     } else {
                         console.log(error + ' ' + response.statusCode)

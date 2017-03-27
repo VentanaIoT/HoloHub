@@ -1,5 +1,4 @@
 var mongoose     = require('mongoose');
-//var Parent       = mongoose.model('Parent', ) 
 var Schema       = mongoose.Schema;
 
 var WinkSchema   = new Schema({
@@ -8,13 +7,5 @@ var WinkSchema   = new Schema({
     device_type: String,    // device_type used by Wink
 	controller: String      // unnecessary, setup?
 });
-
-/*var PowerstripSchema = new Schema({
-
-});
-
-var LightSchema = new Schema({
-
-});*/
 
 module.exports = mongoose.model('WinkDM', WinkSchema);
