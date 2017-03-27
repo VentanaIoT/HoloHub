@@ -1,35 +1,43 @@
 // call the packages we need
 var express    = require('express');
 var bodyParser = require('body-parser');
-var app        = express();
 
 //OAUTH
 var session = require('express-session')
 var Grant = require('grant-express')
 var grant = new Grant(require('./config.json'))
+var app = express();
 
-app.use(session({secret:'3245tr,gfewere4re3e4d98eyoiul438p'}))
+//Socket.IO 
+var server = require('http').createServer(app); 
+var io = require('socket.io')(server);
+io.set('transports', ['websocket']);
+
+// Session for Grant OAUTH
+app.use(session({
+    secret:'3245tr,gfewere4re3e4d98eyoiul438p',
+    resave: true,
+    saveUninitialized: false
+}))
 app.use(grant)
 
+//Morgan Logging
+var morgan = require('morgan');
+app.use(morgan('dev')); // log requests to the console
 
-// GET Wink OAUTH - via Grant
-app.get('/handle_wink_callback', function (req, res) {
-  console.log(req.query)
-  console.log(req.query.access_token)
-  console.log(req.query.refresh_token)
-  res.end(JSON.stringify(req.query, null, 2))
-});
-
-app.get('/', function(req, res) {
-  res.json({ message: 'Connected to Server' });
-});
-
-
-// configure body parser
+// Configure body parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-var port = process.env.PORT || 8080; // set our port
+// Set BASE global variables
+port = process.env.PORT || 8081; // set our port
+BASESERVER = 'http://localhost';
+
+
+// wink tokens
+WINK_ACCESS_TOKEN = "";
+WINK_REFRESH_TOKEN = "";
+WINK_AUTHORIZATION = 'bearer 82pXcnWl6h-5wPyTIrBJBYqxve-ZHih7';
 
 // connect to our database
 var mongoose = require('mongoose');
@@ -38,13 +46,37 @@ mongoose.connect('mongodb://ventana:Pistachio1@ds054999.mlab.com:54999/ventana')
 // Add Routers (Modules)
 var sonos = require('./routes/sonos');
 var wink = require('./routes/wink');
-//var Bear = require('./app/models/bear');
-
-
 app.use('/wink', wink);
 app.use('/sonos', sonos);
 
-/// catch 404 and forwarding to error handler
+// GET Wink OAUTH response - via Grant
+// Grant OAUTH request: http://{serverURL}/connect/{module i.e wink}/
+// Responses successful authentications to http://{serverURL}/handle_wink_callback/
+app.get('/handle_wink_callback', function (req, res) {
+  //console.log(req.query)
+  //console.log(req.query.access_token)
+  //console.log(req.query.refresh_token)
+  WINK_ACCESS_TOKEN = req.query.access_token;
+  WINK_REFRESH_TOKEN = req.query.refresh_token;
+  WINK_AUTHORIZATION = req.query.raw.data.token_type + ' ' + WINK_ACCESS_TOKEN;
+  //console.log(WINK_AUTHORIZATION)
+  res.end(JSON.stringify(req.query, null, 2))
+});
+
+// Server Base Endpoint
+app.get('/', function(req, res) {
+  res.json({ message: 'Connected to Server' });
+});
+
+// Socket.IO POST endpoint to send a sockets message
+app.post('/socketsend', function(req, res) {
+    //Socket IO client connected
+    // io.emit('push', {'data': 'Hi Santy!'});
+    io.emit('push', req.body);
+    res.send("ok");
+});
+
+// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
@@ -69,11 +101,22 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    res.render('error', {
+    res.json({
         message: err.message,
         error: {}
     });
 });
+
+//Server-side requested socket send request
+io.on('connection', function(client) {  
+    console.log('Client connected...');
+    /* ### TESTING CODE ### */
+    io.on('beep', function(action){
+        console.log('beep heard')
+    });
+    
+});
+
 
 
 module.exports = app;
@@ -81,4 +124,6 @@ module.exports = app;
 // START THE SERVER
 // =============================================================================
 app.listen(port);
+server.listen(4200);
 console.log('Magic happens on port ' + port);
+console.log('Sockets wizardy on port 4200');
