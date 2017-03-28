@@ -70,7 +70,12 @@ router.route('/')
     .get(function(req,res){
         if (WINK_AUTHORIZATION != null) {
             //console.log(WINK_AUTHORIZATION)
-            res.json({ message: 'Connected to Wink Module'});
+            WinkDM.find(function(err, sonos) {
+              if (err)
+                  res.send(err);
+              
+              res.json(sonos);
+            });
         } else {
             //console.log("WINK_AUTHORIZATION is null");
             res.json({message: 'Not connected to Wink!'});
@@ -171,6 +176,49 @@ router.get('/wink_devices', function(req, res){
         }
     });
      
+});
+
+//GET all devices connected to the HoloHub
+router.get('/devices', function(req, res){
+    var winkDevices = {'paired_devices': [], 'unpaired_devices': []};
+    var connectedDevices = {};
+
+    // Retrieve all devices paired with the HoloHub, place into a dictionary {device_id: _id}
+    request(BASESERVER + ':' +  port + '/wink/', function(error, response, body){
+        if(!error && response.statusCode == 200) {
+        var temp1 = JSON.parse(body);
+        temp1.forEach(function(arrayItem){
+            connectedDevices[arrayItem.device_id] = arrayItem;
+        });
+
+        // Discover all Wink devices on the Wink.COM
+        request(BASESERVER + ':' +  port + '/wink/wink_devices/', function(error, response, body){
+            if (!error && response.statusCode == 200) {
+                var sonosRequestData = JSON.parse(body)['device_list'];
+
+                sonosRequestData.forEach( function(arrayItem) {
+                //If device name is in connectedDevices, then device is paired -- show w/ it's vumark ID
+                if(arrayItem.device_id in connectedDevices){
+                    winkDevices.paired_devices.push(connectedDevices[arrayItem.device_id]);
+                }        
+                else
+                {
+                    var temp1 = {"device_type": arrayItem.device_type, "device_id": arrayItem.device_id}
+                    winkDevices.unpaired_devices.push(temp1);
+                }
+                });
+                res.json(winkDevices);       
+            }
+            else{
+            error = error1;
+            };
+        });
+        }
+        else{
+        console.log(error);
+        res.send("Error " + error, statusCode=500);
+        };
+    });
 });
 
 // gets the light_bulb status for the particular id
