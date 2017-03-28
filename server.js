@@ -104,11 +104,11 @@ app.get('/', function(req, res) {
     setup.getDevices(function(devices){
         console.log(devices);
 
-        devices.forEach(function(device) {
+        devices['paired'].forEach(function(device) {
             console.log(device);
         });
         
-        res.render('pages/index', {devices:devices});
+        res.render('pages/index', {devices:devices['paired']});
     });
   //res.json({ message: 'Connected to Server' });
 });

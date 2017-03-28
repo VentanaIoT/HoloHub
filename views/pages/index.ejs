@@ -29,7 +29,12 @@
                     <img class="img-responsive" src="<%= device.vendor_logo %>" height="400" alt="">
                 </div>
                 <div class="col-xs-5 text-center vcenter">
-                    <h3> <%= device.device_id %> </h3>
+
+                    <%if ("device_name" in device) { %>
+                        <h3> <%= device.device_name %> </h3>
+                    <% } else{ %>
+                        <h3> <%= device.device_id %> </h3>
+                    <% } %>
                     <h4> <%= device.device_type %> </h4>  
                 </div>
                 <div class="col-xs-3 vcenter" style="padding-top: 30px;">
@@ -43,27 +48,6 @@
         <% }); %>
 
 
-
-        <!-- Project One -->
-
-        <!-- Project Two -->
-        <div class="row">
-            <div class="col-xs-3 vcenter">
-                <img class="img-responsive" src="https://www.winkapp.com/assets/mediakit/wink-logo-icon-knockout-50235153b274cdf35ef39fb780448596.png" height="400" alt="">
-            </div>
-            <div class="col-xs-5 text-center vcenter">
-                <h3>Cosmo</h3>
-                <h4>Wink Light Bulb</h4>
-                
-            </div>
-            <div class="col-xs-3 vcenter" style="padding-top: 30px;">
-                <a class="btn btn-primary" src="#"> Open VuMark <span class="glyphicon glyphicon-chevron-right"></span></a>
-            </div>
-        </div>
-        <!-- /.row -->
-
-
-        <hr>
     </main>
 
     <footer>

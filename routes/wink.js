@@ -5,9 +5,6 @@ var WinkDM = require('../app/models/winkController');
 
 var WINK_HTTP_SERVER = "https://api.wink.com/"
 
-var morgan = require('morgan');
-router.use(morgan('dev'));
-
 // convert Wink response into Wink HoloHub Object friendly response
 function winkSummary(body, callback) {
     winkRequestData = body;
@@ -94,6 +91,9 @@ router.route('/')
         if (req.body.device_type != null){
             wink.device_type = req.body.device_type;
         }
+        if (req.body.device_name != null){
+            wink.device_name = req.body.device_list;
+        }
         /*if (req.body.controller != null){
             wink.controller = req.body.controller;
         }*/
@@ -158,7 +158,8 @@ router.get('/wink_devices', function(req, res){
                 else {
                     console.log("Device type not supported");
                 }
-                deviceTemp["name"] = item.name;
+                deviceTemp["name"] = item.name;         //Kept for legacy. Need to test for removal
+                deviceTemp["device_name"] = item.name;
                 /*getVumarkByDeviceID(deviceTemp["device_id"], function (returnObject){
                     if (returnObject != null) {
                         // this device has a vumark id linked to item
@@ -203,7 +204,7 @@ router.get('/devices', function(req, res){
                 }        
                 else
                 {
-                    var temp1 = {"device_type": arrayItem.device_type, "device_id": arrayItem.device_id}
+                    var temp1 = {"device_type": arrayItem.device_type, "device_id": arrayItem.device_id, "device_name": arrayItem.device_name}
                     winkDevices.unpaired_devices.push(temp1);
                 }
                 });
