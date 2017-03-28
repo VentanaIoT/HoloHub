@@ -94,6 +94,9 @@ router.route('/')
     if("controller" in req.body)
       sonos.controller = req.body.controller
 
+    // For sonos. save device state
+    sonos.device_type = 'Sonos Speaker';
+
     // Lookup sonos state data calling device_id. Verify that the connection can be made.
     request(BASESERVER + ":" + port + '/sonos/status/' + sonos.device_id + '?skiplookup=true', function (error, response, body) {
       if (!error && response.statusCode == 200 && response.body != 'Not Started or Connected') {

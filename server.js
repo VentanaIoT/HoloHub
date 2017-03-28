@@ -67,6 +67,10 @@ WINK_AUTHORIZATION = 'bearer 82pXcnWl6h-5wPyTIrBJBYqxve-ZHih7';
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://ventana:Pistachio1@ds054999.mlab.com:54999/ventana');
 
+// View Engine
+app.set('view engine', 'ejs');
+app.use(express.static('public'))
+
 // Add Routers (Modules)
 var sonos = require('./routes/sonos');
 var wink = require('./routes/wink');
@@ -89,7 +93,8 @@ app.get('/handle_wink_callback', function (req, res) {
 
 // Server Base Endpoint
 app.get('/', function(req, res) {
-  res.json({ message: 'Connected to Server' });
+    res.render('pages/index');
+  //res.json({ message: 'Connected to Server' });
 });
 
 // Socket.IO POST endpoint to send a sockets message
