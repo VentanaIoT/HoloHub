@@ -71,6 +71,9 @@ mongoose.connect('mongodb://ventana:Pistachio1@ds054999.mlab.com:54999/ventana')
 app.set('view engine', 'ejs');
 app.use(express.static('public'))
 
+// Setup JS
+var setup = require('./setup');
+
 // Add Routers (Modules)
 var sonos = require('./routes/sonos');
 var wink = require('./routes/wink');
@@ -91,9 +94,22 @@ app.get('/handle_wink_callback', function (req, res) {
   res.end(JSON.stringify(req.query, null, 2))
 });
 
-// Server Base Endpoint
+// Server Base Endpoint -- SETUP Dashboard
+var vendorLogos = {
+    'wink': 'https://www.winkapp.com/assets/mediakit/wink-logo-icon-knockout-50235153b274cdf35ef39fb780448596.png',
+    'sonos': 'https://lh6.googleusercontent.com/-Px2Steg_XRM/AAAAAAAAAAI/AAAAAAAAFa4/kpB3EVdNHGw/s0-c-k-no-ns/photo.jpg'
+};
+
 app.get('/', function(req, res) {
-    res.render('pages/index');
+    setup.getDevices(function(devices){
+        console.log(devices);
+
+        devices.forEach(function(device) {
+            console.log(device);
+        });
+        
+        res.render('pages/index', {devices:devices});
+    });
   //res.json({ message: 'Connected to Server' });
 });
 

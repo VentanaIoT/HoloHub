@@ -70,9 +70,9 @@ router.route('/')
     SonosDM.find(function(err, sonos) {
               if (err)
                   res.send(err);
-
+              
               res.json(sonos);
-          }).select('device_id');
+          });
   })
 
   .post(function(req, res){ 
@@ -264,7 +264,7 @@ router.get('/devices', function(req, res){
     if(!error && response.statusCode == 200) {
       var temp1 = JSON.parse(body);
       temp1.forEach(function(arrayItem){
-        connectedDevices[arrayItem.device_id] = arrayItem._id;
+        connectedDevices[arrayItem.device_id] = arrayItem;
       });
 
       // Discover all sonos devices on the network
@@ -275,13 +275,12 @@ router.get('/devices', function(req, res){
             sonosRequestData.forEach( function(arrayItem) {
               //If device name is in connectedDevices, then device is paired -- show w/ it's vumark ID
               if(arrayItem.coordinator.roomName in connectedDevices){
-                var temp1 = {};
-                temp1[arrayItem.coordinator.roomName] = connectedDevices[arrayItem.coordinator.roomName];
-                sonosDevices.paired_devices.push(temp1);
+                sonosDevices.paired_devices.push(connectedDevices[arrayItem.coordinator.roomName]);
               }        
               else
               {
-                sonosDevices.unpaired_devices.push(arrayItem.coordinator.roomName);
+                var temp1 = {"device_type": "Sonos Speaker", "device_id": arrayItem.coordinator.roomName}
+                sonosDevices.unpaired_devices.push(temp1);
               }
             });
             res.json(sonosDevices);       

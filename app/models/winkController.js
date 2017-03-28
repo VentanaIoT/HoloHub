@@ -5,7 +5,8 @@ var WinkSchema   = new Schema({
     _id: String,			// THIS IS THE Vumark ID
     device_id: String,      // device_id used by Wink
     device_type: String,    // device_type used by Wink
-	controller: String      // unnecessary, setup?
+	controller: String,      // unnecessary, setup?
+    vendor_logo: String
 });
 
 module.exports = mongoose.model('WinkDM', WinkSchema);

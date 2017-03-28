@@ -22,23 +22,29 @@
         </div>
         <!-- /.row -->
 
-        <!-- Project One -->
-        <div class="row">
-            <div class="col-xs-3 vcenter">
-                <img class="img-responsive" src="https://lh6.googleusercontent.com/-Px2Steg_XRM/AAAAAAAAAAI/AAAAAAAAFa4/kpB3EVdNHGw/s0-c-k-no-ns/photo.jpg" height="400" alt="">
-            </div>
-            <div class="col-xs-5 text-center vcenter">
-                <h3>Living Room</h3>
-                <h4>Sonos Speaker</h4>
-                
-            </div>
-            <div class="col-xs-3 vcenter" style="padding-top: 30px;">
-                <a class="btn btn-primary" src="#"> Open VuMark <span class="glyphicon glyphicon-chevron-right"></span></a>
-            </div>
-        </div>
-        <!-- /.row -->
+        <% devices.forEach(function(device) { %>
 
-        <hr>
+            <div class="row">
+                <div class="col-xs-3 vcenter">
+                    <img class="img-responsive" src="<%= device.vendor_logo %>" height="400" alt="">
+                </div>
+                <div class="col-xs-5 text-center vcenter">
+                    <h3> <%= device.device_id %> </h3>
+                    <h4> <%= device.device_type %> </h4>  
+                </div>
+                <div class="col-xs-3 vcenter" style="padding-top: 30px;">
+                    <a class="btn btn-primary" href="http://localhost:8081/targets/<%= device._id %>.png"> Open VuMark <span class="glyphicon glyphicon-chevron-right"></span></a>
+                </div>
+            </div>
+            <!-- /.row -->
+
+            <hr>
+        
+        <% }); %>
+
+
+
+        <!-- Project One -->
 
         <!-- Project Two -->
         <div class="row">
