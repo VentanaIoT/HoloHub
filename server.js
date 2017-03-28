@@ -95,23 +95,114 @@ app.get('/handle_wink_callback', function (req, res) {
 });
 
 // Server Base Endpoint -- SETUP Dashboard
-var vendorLogos = {
-    'wink': 'https://www.winkapp.com/assets/mediakit/wink-logo-icon-knockout-50235153b274cdf35ef39fb780448596.png',
-    'sonos': 'https://lh6.googleusercontent.com/-Px2Steg_XRM/AAAAAAAAAAI/AAAAAAAAFa4/kpB3EVdNHGw/s0-c-k-no-ns/photo.jpg'
-};
 
 app.get('/', function(req, res) {
     setup.getDevices(function(devices){
         console.log(devices);
 
-        devices['paired'].forEach(function(device) {
-            console.log(device);
-        });
+        if(devices['paired']){
+
+            devices['paired'].forEach(function(device) {
+             console.log(device);
+            });
+
+            res.render('pages/index', {devices:devices['paired']});
+
+        }
+        else{
+            res.render('pages/index', {devices:{}});
+        }
         
-        res.render('pages/index', {devices:devices['paired']});
     });
   //res.json({ message: 'Connected to Server' });
 });
+
+app.get('/vendors', function(req, res){
+   res.render('pages/vendors'); 
+});
+
+app.get('/addSonos', function(req, res) {
+    setup.getSonos(function(devices){
+        console.log(devices);
+
+        if(devices['unpaired']){
+
+            devices['unpaired'].forEach(function(device) {
+             console.log(device);
+            });
+
+            res.render('pages/add', {devices:devices['unpaired']});
+
+        }
+        else{
+            res.render('pages/add', {devices:{}});
+        }
+        
+    });
+});
+
+app.get('/savenew/:vendor/', function(req, res){
+    setup.getUsedIds(function(values){
+        console.log(values);
+
+        // Based on vendor, create object in the correct SonosDM or WinkDM object
+        // Will recieve value from url query parameters:
+        // - device_name
+        // - device_type
+        // - [all the things in the sonos/wink object]
+        // - assign it an _id that is not in the the `getUsedIDs` list less than 15.
+
+        var options = {
+            method: 'POST',
+            //url: WINK_HTTP_SERVER + req.body.device_type + '/' + req.body.device_id + '/desired_state',
+            url: BASESERVER + device_type + '/' + device_id,
+            headers: {
+                'Content-Type': 'application/json', 
+                //'Authorization': req.body.Authorization 
+                Authorization : WINK_AUTHORIZATION
+            },
+            //body: req.body,
+            body: new_state,
+            json: true
+        };
+        
+        request(options, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                res.send({ message: 'Change State'});
+            } else {
+                console.log(error + ' ' + response.statusCode)
+                res.json({ message: 'Error State'});
+            }        
+        });
+
+
+
+            
+    });
+});
+
+app.get('/addWink', function(req, res) {
+    setup.getWink(function(devices){
+        console.log(devices);
+
+        if(devices['unpaired']){
+
+            devices['unpaired'].forEach(function(device) {
+             console.log(device);
+            });
+
+            res.render('pages/add', {devices:devices['unpaired']});
+
+        }
+        else{
+            res.render('pages/add', {devices:{}});
+        }
+        
+    });
+  //res.json({ message: 'Connected to Server' });
+});
+
+
 
 // Socket.IO POST endpoint to send a sockets message
 app.post('/socketsend', function(req, res) {

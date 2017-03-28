@@ -1,0 +1,62 @@
+<!-- views/pages/addSonos.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <% include ../partials/nav %>
+
+    <main>
+        <!-- Page Content -->
+        <div class="container">
+
+        <!-- Page Heading -->
+        <div class="row">
+            <div class="col-xs-8 vcenter">
+                <h1 class="page-header">Add Device <br />
+                    <small>Select the device to add</small>
+                </h1>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <% devices.forEach(function(device) { %>
+
+            <div class="row">
+                <div class="col-xs-8 vcenter">
+
+                    <%if ("device_name" in device) { %>
+                        <h3> <%= device.device_name %> </h3>
+                    <% } else{ %>
+                        <h3> <%= device.device_id %> </h3>
+                    <% } %>
+                    <h4> <%= device.device_type %> </h4>  
+                </div>
+                <div class="col-xs-4 vcenter" style="padding-top: 30px;">
+                    <a class="btn btn-primary" href="http://localhost:8081/targets/8.png"> Pair Device <span class="glyphicon glyphicon-chevron-right"></span></a>
+                </div>
+            </div>
+            <!-- /.row -->
+
+            <hr>
+        
+        <% }); %>
+
+
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../js/bootstrap.min.js"></script>
+    
+</body>
+</html>
