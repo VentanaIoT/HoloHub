@@ -116,7 +116,7 @@ router.route('/')
                 });
                 res.json((JSON.parse(body)).data);
             } else {
-                console.log("error in POST")
+                console.log("error in 'wink/' POST: " + response.statusCode)
                 //res.send(statusCode=500, "Not Started or Connected");
                 res.send({message : "this didn't work"});
             };

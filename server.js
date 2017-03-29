@@ -154,7 +154,7 @@ app.get('/savenew/:vendor', function(req, res){
             }
         }
 
-        console.log("New ID to use: " + newId);
+        //console.log("New ID to use: " + newId);
 
         if (newId == 16) {
             res.send({"message": "The number of vumark ids has been exhausted"});
@@ -175,11 +175,12 @@ app.get('/savenew/:vendor', function(req, res){
         }
         
         setup.saveNewDevice(object, function(returnValue){
-            console.log(returnValue);
+            //console.log(returnValue);
             if (returnValue == null){
                 res.json({"message" : "unsuccessful saving of new device"});
             } else {
-                res.json(returnValue);
+                // successfully saved device with id == returnValue
+                res.json({"message" : "success! with id #" + returnValue});
             }
         });
 

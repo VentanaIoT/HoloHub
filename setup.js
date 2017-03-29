@@ -153,13 +153,14 @@ module.exports = {
                         '_id' : object._id,
                         'device_id' : object.device_id,
                         'controller' : object.controller
-                    }
+                    },
+                    json: true
                 }, function(error, response, body){
-                    if (error) {
-                        return callback(null)
+                    if (!error && response.statusCode == 200) {
+                        return callback(object._id);
                     } else {
-                        return callback({"message": "successfully added sonos object"});
-                    }
+                        return callback(null);
+                    } 
                 });
 
             } else if (object.vendor == "2") {
@@ -172,12 +173,13 @@ module.exports = {
                         'device_id' : object.device_id,
                         'device_type': object.device_type,
                         'device_name' : object.device_name
-                    }
+                    },
+                    json: true
                 }, function(error, response, body){
-                    if (error) {
-                        return callback(null)
+                    if (!error && response.statusCode == 200) {
+                        return callback(object._id);
                     } else {
-                        return callback({"message": "successfully added wink object"});
+                        return callback(null);
                     } 
                 });
 
