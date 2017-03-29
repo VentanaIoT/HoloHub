@@ -144,51 +144,52 @@ app.get('/addSonos', function(req, res) {
 app.get('/savenew/:vendor', function(req, res){
     setup.getUsedIds(function(values){
         //console.log(values);
+        if (req.params.vendor != "1" || req.params.vendor != "2") {
+            res.json({"message" : "incorrect vendor id entered"});
+        } else {
 
-        var newId = 1;
-        while (newId < 16) {
-            if (values.includes(newId.toString())) {
-                newId++;
-            } else {
-                break;
+            var newId = 1;
+            while (newId < 16) {
+                if (values.includes(newId.toString())) {
+                    newId++;
+                } else {
+                    break;
+                }
             }
-        }
 
-        //console.log("New ID to use: " + newId);
+            //console.log("New ID to use: " + newId);
 
-        if (newId == 16) {
-            res.send({"message": "The number of vumark ids has been exhausted"});
-        }
-        // Based on vendor, create object in the correct SonosDM or WinkDM object
-        // vendor == 1 -- sonos
-        // vendor == 2 -- wink
-        // Will recieve value from url query parameters:
-        // - device_name
-        // - device_type
-        // - [all the things in the sonos/wink object]
-        // - assign it an _id that is not in the the `getUsedIDs` list less than 15.
-        var object = {
-            '_id' : newId.toString(),
-            'device_id' : req.query.device_id,
-            'device_type' : req.query.device_type,
-            'vendor' : req.params.vendor
-        }
-        
-        setup.saveNewDevice(object, function(returnValue){
-            //console.log(returnValue);
-            if (returnValue == null){
-                res.json({"message" : "unsuccessful saving of new device"});
-            } else {
-                // successfully saved device with id == returnValue
-                res.json({"message" : "success! with id #" + returnValue});
+            if (newId == 16) {
+                res.send({"message": "The number of vumark ids has been exhausted"});
             }
-        });
-
-    });
-    
-    //res.json({ message: 'test'});
+            // Based on vendor, create object in the correct SonosDM or WinkDM object
+            // vendor == 1 -- sonos
+            // vendor == 2 -- wink
+            // Will recieve value from url query parameters:
+            // - device_name
+            // - device_type
+            // - [all the things in the sonos/wink object]
+            // - assign it an _id that is not in the the `getUsedIDs` list less than 15.
+            var object = {
+                '_id' : newId.toString(),
+                'device_id' : req.query.device_id,
+                'device_type' : req.query.device_type,
+                'vendor' : req.params.vendor
+            }
             
-    
+            setup.saveNewDevice(object, function(returnValue){
+                //console.log(returnValue);
+                if (returnValue == null){
+                    res.json({"message" : "unsuccessful saving of new device"});
+                } else {
+                    // successfully saved device with id == returnValue
+                    res.json({"message" : "success! with id #" + returnValue});
+                }
+            });
+        } 
+    });
+        
+        //res.json({ message: 'test'});       
 });
 
 app.get('/addWink', function(req, res) {

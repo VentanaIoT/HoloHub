@@ -185,6 +185,7 @@ module.exports = {
 
             } else {
                 // vendor not sonos or wink
+                console.log("Incorrect vendor number entered: " + object.vendor + " is not a supported number");
             }
 
         }

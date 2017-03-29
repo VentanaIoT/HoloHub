@@ -94,8 +94,14 @@ router.route('/')
         if (req.body.device_name != null){
             wink.device_name = req.body.device_list;
         }
-        if (req.body.controller != null){
-            wink.controller = req.body.controller;
+        
+        // wink controller is path to hololens VentanaConfig.json
+        if (wink.device_type == "light_bulbs") {
+            wink.controller = "Ventana/Prefabs/LightController";
+        } else if (wink.device_type == "powerstrips") {
+            wink.controller = "Ventana/Prefabs/PowerStripController";
+        } else {
+            wink.controller = null;
         }
 
         request({
@@ -151,11 +157,10 @@ router.get('/wink_devices', function(req, res){
                 } else if (item.powerstrip_id != null){
                     deviceTemp["device_id"] = item.powerstrip_id;
                     deviceTemp["device_type"] = 'powerstrips';
-                } else if (item.manufacturer_device_model == "wink_hub") {
+                }/* else if (item.manufacturer_device_model == "wink_hub") {
                     deviceTemp["device_id"] = item.hub_id;
                     deviceTemp["device_type"] = 'hubs';
-                }
-                else {
+                }*/ else {
                     console.log("Device type not supported");
                 }
                 deviceTemp["name"] = item.name;         //Kept for legacy. Need to test for removal
