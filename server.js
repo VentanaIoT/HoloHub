@@ -141,10 +141,18 @@ app.get('/addSonos', function(req, res) {
     });
 });
 
-app.get('/savenew/:vendor/', function(req, res){
+app.get('/savenew/:vendor', function(req, res){
     setup.getUsedIds(function(values){
         console.log(values);
 
+        var newId = "1";
+        while (newId < "16") {
+            if (values.includes(newId)) {
+                newId += "1";
+            } else {
+                break;
+            }
+        }
         // Based on vendor, create object in the correct SonosDM or WinkDM object
         // Will recieve value from url query parameters:
         // - device_name
@@ -152,7 +160,7 @@ app.get('/savenew/:vendor/', function(req, res){
         // - [all the things in the sonos/wink object]
         // - assign it an _id that is not in the the `getUsedIDs` list less than 15.
 
-        var options = {
+        /*var options = {
             method: 'POST',
             //url: WINK_HTTP_SERVER + req.body.device_type + '/' + req.body.device_id + '/desired_state',
             url: BASESERVER + device_type + '/' + device_id,
@@ -173,12 +181,13 @@ app.get('/savenew/:vendor/', function(req, res){
                 console.log(error + ' ' + response.statusCode)
                 res.json({ message: 'Error State'});
             }        
-        });
+        });*/
 
-
-
-            
     });
+    
+    res.json({ message: 'test'});
+            
+    
 });
 
 app.get('/addWink', function(req, res) {
