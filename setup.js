@@ -147,7 +147,7 @@ module.exports = {
             if (object.vendor == "1") {
                 // vendor is sonos
                 request({
-                    method: POST,
+                    method: 'POST',
                     url: BASESERVER + ":" +  port + "/sonos/",
                     body: {
                         '_id' : object._id,
@@ -165,7 +165,7 @@ module.exports = {
             } else if (object.vendor == "2") {
                 // vendor is wink
                 request({
-                    method: POST,
+                    method: 'POST',
                     url: BASESERVER + ":" +  port + "/wink/",
                     body: {
                         '_id' : object._id,

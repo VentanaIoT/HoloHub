@@ -175,6 +175,7 @@ app.get('/savenew/:vendor', function(req, res){
         }
         
         setup.saveNewDevice(object, function(returnValue){
+            console.log(returnValue);
             if (returnValue == null){
                 res.json({"message" : "unsuccessful saving of new device"});
             } else {
