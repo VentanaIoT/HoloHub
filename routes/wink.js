@@ -101,7 +101,10 @@ router.route('/')
         if (req.body.vendor != null) {
             wink.vendor = req.body.vendor;
         }
-        
+        else{
+            wink.vendor = "2"; //vendor is wink
+        }
+
         // wink controller is path to hololens VentanaConfig.json
         if (wink.device_type == "light_bulbs") {
             wink.controller = "Ventana/Prefabs/LightController";

@@ -89,14 +89,16 @@ router.route('/')
 
     if("_id" in req.body)
       sonos._id = req.body._id
-    if("device_id" in req.body)
-      sonos.device_id = req.body.device_id
+    if("device_id" in req.body) {
+      sonos.device_id = req.body.device_id;
+      sonos.device_name = reeq.body.device_id;
+    }
     if("vendor_logo" in req.body)
       sonos.vendor_logo = req.body.vendor_logo
       
     //if("controller" in req.body)
     sonos.controller = "Ventana/Prefabs/MusicController";
-
+    sonos.vendor = "1" ; //specific for sonos devices
     // For sonos. save device state
     sonos.device_type = 'Sonos Speaker';
 
