@@ -91,6 +91,8 @@ router.route('/')
       sonos._id = req.body._id
     if("device_id" in req.body)
       sonos.device_id = req.body.device_id
+    if("vendor_logo" in req.body)
+      sonos.vendor_logo = req.body.vendor_logo
       
     //if("controller" in req.body)
     sonos.controller = "Ventana/Prefabs/MusicController";

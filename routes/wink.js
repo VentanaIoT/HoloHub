@@ -12,6 +12,7 @@ function winkSummary(body, callback) {
 
     winkSendData["device_type"] = winkRequestData.data.object_type + "s";
     winkSendData["device_id"] = winkRequestData.data.object_id;
+    winkSendData["vendor_logo"] = winkRequestData.data.vendor_logo;
 
     if (winkRequestData.data.object_type == "powerstrip"){
         winkSendData["outlets"] = [];
@@ -94,6 +95,9 @@ router.route('/')
         if (req.body.device_name != null){
             wink.device_name = req.body.device_list;
         }
+        if (req.body.vendor_logo != null) {
+            wink.vendor_logo = req.body.vendor_logo;
+        }
         
         // wink controller is path to hololens VentanaConfig.json
         if (wink.device_type == "light_bulbs") {
@@ -165,6 +169,7 @@ router.get('/wink_devices', function(req, res){
                 }
                 deviceTemp["name"] = item.name;         //Kept for legacy. Need to test for removal
                 deviceTemp["device_name"] = item.name;
+                deviceTemp["vendor_logo"] = item.vendor_logo;
                 /*getVumarkByDeviceID(deviceTemp["device_id"], function (returnObject){
                     if (returnObject != null) {
                         // this device has a vumark id linked to item

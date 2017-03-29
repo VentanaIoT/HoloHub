@@ -151,7 +151,8 @@ module.exports = {
                     body: {
                         '_id' : object._id,
                         'device_id' : object.device_id,
-                        'controller' : object.controller
+                        'controller' : object.controller,
+                        'vendor_logo' : 'https://lh6.googleusercontent.com/-Px2Steg_XRM/AAAAAAAAAAI/AAAAAAAAFa4/kpB3EVdNHGw/s0-c-k-no-ns/photo.jpg'
                     },
                     json: true
                 }, function(error, response, body){
@@ -171,7 +172,8 @@ module.exports = {
                         '_id' : object._id,
                         'device_id' : object.device_id,
                         'device_type': object.device_type,
-                        'device_name' : object.device_name
+                        'device_name' : object.device_name,
+                        'vendor_logo' : 'https://www.winkapp.com/assets/mediakit/wink-logo-icon-knockout-50235153b274cdf35ef39fb780448596.png'
                     },
                     json: true
                 }, function(error, response, body){
@@ -188,7 +190,6 @@ module.exports = {
             }
 
         }
-        
    },
 
   removeDevice: function(id, callback) {
