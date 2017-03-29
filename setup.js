@@ -59,23 +59,26 @@ module.exports = {
     var unpaired = [];
 
     request(BASESERVER + ":" +  port + "/sonos/devices", function(error, response, body){
-        if(error){
-            return callback(null);
+        if(response.statusCode == 200){
+            var responseJson = JSON.parse(body);
+
+            var sonosPaired = responseJson["paired_devices"];
+            var sonosUnpaired = responseJson["unpaired_devices"];
+
+            if(sonosPaired){
+                paired = paired.concat(sonosPaired);
+            }
+
+            if(sonosUnpaired){
+                unpaired = unpaired.concat(sonosUnpaired);
+            }  
+
+            return callback({"paired": paired, "unpaired": unpaired});
         }
-        var responseJson = JSON.parse(body);
-
-        var sonosPaired = responseJson["paired_devices"];
-        var sonosUnpaired = responseJson["unpaired_devices"];
-
-        if(sonosPaired){
-            paired = paired.concat(sonosPaired);
+        else {
+            return callback({"paired": [], "unpaired": []});
         }
-
-        if(sonosUnpaired){
-            unpaired = unpaired.concat(sonosUnpaired);
-        }  
-
-        return callback({"paired": paired, "unpaired": unpaired});
+        
 
     });
   },
@@ -88,7 +91,8 @@ module.exports = {
 
     request(BASESERVER + ":" +  port + "/wink/devices", function(error, response, body){
         if(error){
-            return callback(null);
+            // No Wink Devices Found
+            return callback({"paired": [], "unpaired": []});
         }
         var responseJson = JSON.parse(body);
 

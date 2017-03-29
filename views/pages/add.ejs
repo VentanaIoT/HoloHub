@@ -23,27 +23,37 @@
         </div>
         <!-- /.row -->
 
-        <% devices.forEach(function(device) { %>
-
+        <%if (!devices) { %>
             <div class="row">
-                <div class="col-xs-8 vcenter">
-
-                    <%if ("device_name" in device) { %>
-                        <h3> <%= device.device_name %> </h3>
-                    <% } else{ %>
-                        <h3> <%= device.device_id %> </h3>
-                    <% } %>
-                    <h4> <%= device.device_type %> </h4>  
-                </div>
-                <div class="col-xs-4 vcenter" style="padding-top: 30px;">
-                    <a class="btn btn-primary" href="<%= host %>/<%= device.device_id %>/"> Pair Device <span class="glyphicon glyphicon-chevron-right"></span></a>
+                <div class="col-lg-12">
+                    <h3 class="page-header">No devices found! Please check your network and connections.
+                    </h3>
                 </div>
             </div>
-            <!-- /.row -->
+        <% } else { %>
 
-            <hr>
-        
-        <% }); %>
+            <% devices.forEach(function(device) { %>
+
+                <div class="row">
+                    <div class="col-xs-8 vcenter">
+
+                        <%if ("device_name" in device) { %>
+                            <h3> <%= device.device_name %> </h3>
+                        <% } else{ %>
+                            <h3> <%= device.device_id %> </h3>
+                        <% } %>
+                        <h4> <%= device.device_type %> </h4>  
+                    </div>
+                    <div class="col-xs-4 vcenter" style="padding-top: 30px;">
+                        <a class="btn btn-primary" href="<%= host %>/<%= device.device_id %>/"> Pair Device <span class="glyphicon glyphicon-chevron-right"></span></a>
+                    </div>
+                </div>
+                <!-- /.row -->
+
+                <hr>
+            
+            <% }); %>
+        <% }; %>
 
 
     </main>
