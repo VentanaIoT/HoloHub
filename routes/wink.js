@@ -175,18 +175,18 @@ router.get('/wink_devices', function(req, res){
 
 // gets the light_bulb status for the particular id
 router.get('/status/:vumark_id', function(req, res) {
-
-    //Johan wants name and desired_state object and vumark_id
-    //var winkRequestData;
-
     
     getDeviceIDbyVumarkID(req.params.vumark_id, function(returnObject) {
-        var device_id = returnObject._doc.device_id;
-        var device_type = returnObject._doc.device_type;
-        //var RIP = returnObject._doc.desired_state;
+        var device_id;
+        var device_type;
+        
+        if (returnObject == null) {
+            res.send({"message": "Invalid Wink vumark ID"});
+        } else {
+            device_id = returnObject._doc.device_id;
+            device_type = returnObject._doc.device_type;
+        }
 
-        //console.log(req.params.vumark_id);
-        //console.log(WINK_HTTP_SERVER + device_type + '/' + device_id);
         request({
             method: 'GET',
             url: WINK_HTTP_SERVER + device_type + '/' + device_id,
@@ -223,18 +223,23 @@ router.get('/status/:vumark_id', function(req, res) {
 router.post('/change_power/:vumark_id', function(req, res) {
     
     getDeviceIDbyVumarkID(req.params.vumark_id, function(returnObject){
-        var device_id = returnObject._doc.device_id;
-        var device_type = returnObject._doc.device_type;
+        var device_id;
+        var device_type;
+        
+        if (returnObject == null) {
+            res.send({"message": "Invalid Wink vumark ID"});
+        } else {
+            device_id = returnObject._doc.device_id;
+            device_type = returnObject._doc.device_type;
+        }
 
         var last_state; 
-        //var last_brightness;
 
         request({
             method: 'GET',
             url: WINK_HTTP_SERVER + device_type + '/' + device_id,
             headers: {
                 'Content-Type': 'application/json', 
-                //'Authorization': req.body.Authorization 
                 Authorization : WINK_AUTHORIZATION
             },
             json: true
@@ -256,29 +261,25 @@ router.post('/change_power/:vumark_id', function(req, res) {
 
                 var options = {
                     method: 'PUT',
-                    //url: WINK_HTTP_SERVER + req.body.device_type + '/' + req.body.device_id + '/desired_state',
                     url: WINK_HTTP_SERVER + device_type + '/' + device_id + '/desired_state',
                     headers: {
                         'Content-Type': 'application/json', 
-                        //'Authorization': req.body.Authorization 
                         Authorization : WINK_AUTHORIZATION
                     },
-                    //body: req.body,
                     body: new_state,
                     json: true
                 };
                 
                 request(options, function (error, response, body) {
                     if (!error && response.statusCode == 200) {
-                        res.send({ message: 'Change State'});
+                        res.send({ message: 'Change power state'});
                     } else {
                         console.log(error + ' ' + response.statusCode)
-                        res.json({ message: 'Error State'});
+                        res.json({ message: 'Error change power state'});
                     }        
                 });
             } else {
-                    res.send(500, "RIP")
-                    //res.json({ message: 'Light bulb id ' + req.body.device_id });
+                    res.send(500, "Not successful change_power")
             }
         });
 
@@ -290,9 +291,16 @@ router.post('/change_power/:vumark_id', function(req, res) {
 router.post('/change_brightness/:vumark_id', function(req, res) {
     
     getDeviceIDbyVumarkID(req.params.vumark_id, function(returnObject){
-        var device_id = returnObject._doc.device_id;
-        var device_type = returnObject._doc.device_type;
+        var device_id;
+        var device_type;
         
+        if (returnObject == null) {
+            res.send({"message": "Invalid Wink vumark ID"});
+        } else {
+            device_id = returnObject._doc.device_id;
+            device_type = returnObject._doc.device_type;
+        }
+
         var state;
         var amount_change_brightness = req.body.value/100.0;
 
@@ -342,15 +350,14 @@ router.post('/change_brightness/:vumark_id', function(req, res) {
                         //console.log('Status:', response.statusCode);
                         //console.log('Headers:', JSON.stringify(response.headers));
                         //console.log('Response:', body);
-                        res.send({ message: 'Change State'});
+                        res.send({ message: 'Change Brightness'});
                     } else {
                         console.log(error + ' ' + response.statusCode)
-                        res.json({ message: 'Error State'});
+                        res.json({ message: 'Error in changing brightness'});
                     }        
                 });
             } else {
-                    res.send(500, "RIP")
-                    //res.json({ message: 'Light bulb id ' + req.body.device_id });
+                    res.send(500, "Not Successful change_brightness")
             }
         });
 
