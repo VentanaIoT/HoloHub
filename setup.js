@@ -5,7 +5,7 @@ module.exports = {
 
   supportedDevices: {
         "Sonos Speaker": "Ventana/Prefabs/MusicController",
-        "light_bulb": "Ventana/Prefabs/LightController",
+        "light_bulbs": "Ventana/Prefabs/LightController",
         "powerstrips":"Ventana/Prefabs/PowerStripController"
     },
 
@@ -56,7 +56,7 @@ module.exports = {
   },
 
   getSonos: function (callback) {
-    // Get Wink Data 
+    // Get Sonos Data 
 
     var paired = [];
     var unpaired = [];
@@ -113,6 +113,7 @@ module.exports = {
   },
 
   getUsedIds: function (callback) {
+    // get ids (vumark) that have been used
     var ids = []
     var SonosDM = require('./app/models/sonosController');
     var WinkDM = require('./app/models/winkController');
@@ -134,12 +135,58 @@ module.exports = {
         }
     }).select('_id');
     
+   },
 
-    
+   saveNewDevice: function (object, callback) {
 
+        console.log(JSON.stringify(object));
+        if (object == null) {
+            console.log("ERROR: object to save was NULL");
+            return callback(null);
+        } else {
+            if (object.vendor == "1") {
+                // vendor is sonos
+                request({
+                    method: POST,
+                    url: BASESERVER + ":" +  port + "/sonos/",
+                    body: {
+                        '_id' : object._id,
+                        'device_id' : object.device_id,
+                        'controller' : object.controller
+                    }
+                }, function(error, response, body){
+                    if (error) {
+                        return callback(null)
+                    } else {
+                        return callback({"message": "successfully added sonos object"});
+                    }
+                });
 
-        // return callback(ids);
+            } else if (object.vendor == "2") {
+                // vendor is wink
+                request({
+                    method: POST,
+                    url: BASESERVER + ":" +  port + "/wink/",
+                    body: {
+                        '_id' : object._id,
+                        'device_id' : object.device_id,
+                        'device_type': object.device_type,
+                        'device_name' : object.device_name
+                    }
+                }, function(error, response, body){
+                    if (error) {
+                        return callback(null)
+                    } else {
+                        return callback({"message": "successfully added wink object"});
+                    } 
+                });
 
-      
-  }
+            } else {
+                // vendor not sonos or wink
+            }
+
+        }
+        
+   }
+
 };

@@ -94,9 +94,9 @@ router.route('/')
         if (req.body.device_name != null){
             wink.device_name = req.body.device_list;
         }
-        /*if (req.body.controller != null){
+        if (req.body.controller != null){
             wink.controller = req.body.controller;
-        }*/
+        }
 
         request({
             method: 'GET',
