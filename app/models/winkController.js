@@ -7,7 +7,8 @@ var WinkSchema   = new Schema({
     device_type: String,    // device_type used by Wink
     device_name: String,
 	controller: String,      // unnecessary, setup?
-    vendor_logo: String
+    vendor_logo: String,
+    vendor: String
 });
 
 module.exports = mongoose.model('WinkDM', WinkSchema);
