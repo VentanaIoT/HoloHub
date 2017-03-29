@@ -183,7 +183,7 @@ app.get('/addSonos', function(req, res) {
     setup.getSonos(function(devices){
         console.log(devices);
 
-        if(devices['unpaired']){
+        if(devices != null && devices['unpaired']){
 
             devices['unpaired'].forEach(function(device) {
              console.log(device);
@@ -243,7 +243,7 @@ app.get('/addWink', function(req, res) {
     setup.getWink(function(devices){
         console.log(devices);
 
-        if(devices['unpaired']){
+        if(devices != null && devices['unpaired']){
 
             devices['unpaired'].forEach(function(device) {
              console.log(device);
