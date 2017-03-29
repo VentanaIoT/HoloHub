@@ -173,7 +173,9 @@ module.exports = {
                         'device_id' : object.device_id,
                         'device_type': object.device_type,
                         'device_name' : object.device_name,
-                        'vendor_logo' : 'https://www.winkapp.com/assets/mediakit/wink-logo-icon-knockout-50235153b274cdf35ef39fb780448596.png'
+                        'controller': object.controller,
+                        'vendor_logo' : 'https://www.winkapp.com/assets/mediakit/wink-logo-icon-knockout-50235153b274cdf35ef39fb780448596.png',
+                        'vendor': object.vendor
                     },
                     json: true
                 }, function(error, response, body){

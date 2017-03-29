@@ -282,7 +282,14 @@ router.get('/devices', function(req, res){
               }        
               else
               {
-                var temp1 = {"device_type": "Sonos Speaker", "device_id": arrayItem.coordinator.roomName}
+                var temp1 = {
+                  "device_id": arrayItem.coordinator.roomName,
+                  "device_type": "Sonos Speaker",
+                  "device_name": arrayItem.coordinator.roomName,
+                  "controller": "Ventana/Prefabs/MusicController",
+                  "vendor": '1',
+                  "vendor_logo": 'https://lh6.googleusercontent.com/-Px2Steg_XRM/AAAAAAAAAAI/AAAAAAAAFa4/kpB3EVdNHGw/s0-c-k-no-ns/photo.jpg'
+                }
                 sonosDevices.unpaired_devices.push(temp1);
               }
             });

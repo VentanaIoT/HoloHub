@@ -45,7 +45,7 @@
                         <h4> <%= device.device_type %> </h4>  
                     </div>
                     <div class="col-xs-4 vcenter" style="padding-top: 30px;">
-                        <a class="btn btn-primary" href="<%= host %>/<%= device.device_id %>/"> Pair Device <span class="glyphicon glyphicon-chevron-right"></span></a>
+                        <a class="btn btn-primary" href="http://<%= host %>/savenew/<%= device.vendor %>/?device_id=<%= device.device_id %>&device_type=<%= device.device_type %>&device_name=<%= device.device_name %>&controller=<%= device.controller %>&vendor_logo=<%= device.vendor_logo %>"> Pair Device <span class="glyphicon glyphicon-chevron-right"></span></a>
                     </div>
                 </div>
                 <!-- /.row -->

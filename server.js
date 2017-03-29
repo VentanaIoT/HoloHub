@@ -202,7 +202,7 @@ app.get('/addSonos', function(req, res) {
 app.get('/savenew/:vendor', function(req, res){
     setup.getUsedIds(function(values){
         //console.log(values);
-        if (req.params.vendor != "1" || req.params.vendor != "2") {
+        if (req.params.vendor != "1" && req.params.vendor != "2") {
             res.json({"message" : "incorrect vendor id entered"});
         } else {
 
@@ -217,7 +217,7 @@ app.get('/savenew/:vendor', function(req, res){
 
             //console.log("New ID to use: " + newId);
 
-            if (newId == 16) {
+            if (newId >= 16) {
                 res.send({"message": "The number of vumark ids has been exhausted"});
             }
             // Based on vendor, create object in the correct SonosDM or WinkDM object
@@ -232,16 +232,21 @@ app.get('/savenew/:vendor', function(req, res){
                 '_id' : newId.toString(),
                 'device_id' : req.query.device_id,
                 'device_type' : req.query.device_type,
-                'vendor' : req.params.vendor
+                'vendor' : req.params.vendor,
+                'vendor_logo': req.query.vendor_logo,
+                'device_name': req.query.device_name,
+                'controller': req.query.controller
             }
             
             setup.saveNewDevice(object, function(returnValue){
                 //console.log(returnValue);
                 if (returnValue == null){
+                    // Create new view for errors.
                     res.json({"message" : "unsuccessful saving of new device"});
                 } else {
                     // successfully saved device with id == returnValue
-                    res.json({"message" : "success! with id #" + returnValue});
+                    res.redirect('../../');
+                    //res.json({"message" : "success! with id #" + returnValue});
                 }
             });
         } 

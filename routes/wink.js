@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var request = require('request');
 var WinkDM = require('../app/models/winkController');
-
+var setup = require('../setup');
 var WINK_HTTP_SERVER = "https://api.wink.com/"
 
 // convert Wink response into Wink HoloHub Object friendly response
@@ -93,10 +93,13 @@ router.route('/')
             wink.device_type = req.body.device_type;
         }
         if (req.body.device_name != null){
-            wink.device_name = req.body.device_list;
+            wink.device_name = req.body.device_name;
         }
         if (req.body.vendor_logo != null) {
             wink.vendor_logo = req.body.vendor_logo;
+        }
+        if (req.body.vendor != null) {
+            wink.vendor = req.body.vendor;
         }
         
         // wink controller is path to hololens VentanaConfig.json
@@ -124,7 +127,7 @@ router.route('/')
                         res.json({message: 'WinkDM object created!'});
                     };
                 });
-                res.json((JSON.parse(body)).data);
+                // res.json((JSON.parse(body)).data);
             } else {
                 console.log("error in 'wink/' POST: " + response.statusCode)
                 //res.send(statusCode=500, "Not Started or Connected");
@@ -214,8 +217,18 @@ router.get('/devices', function(req, res){
                 }        
                 else
                 {
-                    var temp1 = {"device_type": arrayItem.device_type, "device_id": arrayItem.device_id, "device_name": arrayItem.device_name}
-                    winkDevices.unpaired_devices.push(temp1);
+                    if(arrayItem.device_type in setup.supportedDevices){
+                        var temp1 = {
+                            "device_id": arrayItem.device_id,
+                            "device_type": arrayItem.device_type,
+                            "device_name": arrayItem.device_name,
+                            "controller": setup.supportedDevices[arrayItem.device_type],
+                            "vendor_logo": "https://www.winkapp.com/assets/mediakit/wink-logo-icon-knockout-50235153b274cdf35ef39fb780448596.png",
+                            "vendor": 2
+                        }
+                        winkDevices.unpaired_devices.push(temp1);
+                    }
+                    
                 }
                 });
                 res.json(winkDevices);       
