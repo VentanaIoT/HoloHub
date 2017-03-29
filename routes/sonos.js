@@ -261,7 +261,7 @@ router.get('/devices', function(req, res){
   var connectedDevices = {}
   
   // Retrieve all devices paired with the HoloHub, place into a dictionary {device_id: _id}
-  request(BASESERVER + ':' +  port + '/sonos/', function(error, response, body){
+  request(BASESERVER + ':' +  port + '/sonos/', {timeout: 500}, function(error, response, body){
     if(!error && response.statusCode == 200) {
       var temp1 = JSON.parse(body);
       temp1.forEach(function(arrayItem){
@@ -269,7 +269,7 @@ router.get('/devices', function(req, res){
       });
 
       // Discover all sonos devices on the network
-      request(SONOS_HTTP_SERVER + '/' + 'zones', function (error1, response, body) {
+      request(SONOS_HTTP_SERVER + '/' + 'zones', {timeout: 500}, function (error1, response, body) {
         if (!error1 && response.statusCode == 200) {
             var sonosRequestData = JSON.parse(body);
 
@@ -287,7 +287,8 @@ router.get('/devices', function(req, res){
             res.json(sonosDevices);       
         }
         else{
-          error = error1;
+          console.log(error1);
+          res.send("Error", statusCode=500);
         };
       });
     }

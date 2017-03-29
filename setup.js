@@ -17,42 +17,38 @@ module.exports = {
     var unpaired = [];
 
     request(BASESERVER + ":" +  port + "/sonos/devices", function(error, response, body){
-        if(error){
-            return callback(null);
-        }
-        var responseJson = JSON.parse(body);
-
-        var sonosPaired = responseJson["paired_devices"];
-        var sonosUnpaired = responseJson["unpaired_decies"];
-
-        if(sonosPaired){
-            paired = paired.concat(sonosPaired);
-        }
-
-        if(sonosUnpaired){
-            unpaired = unpaired.concat(sonosUnpaired);
-        }
-
-        request(BASESERVER + ":" +  port + "/wink/devices", function(error, response, body){
-            if(error){
-                return callback(null);
-            }
+        if(response.statusCode == 200){
             var responseJson = JSON.parse(body);
 
-            var winkPaired = responseJson["paired_devices"];
-            var winkUnPaired = responseJson["unpaired_devices"];
+            var sonosPaired = responseJson["paired_devices"];
+            var sonosUnpaired = responseJson["unpaired_decies"];
 
-            if(winkPaired){
-                paired = paired.concat(winkPaired);
+            if(sonosPaired){
+                paired = paired.concat(sonosPaired);
             }
 
-            if(winkUnPaired){
-                unpaired = unpaired.concat(winkUnPaired);
+            if(sonosUnpaired){
+                unpaired = unpaired.concat(sonosUnpaired);
             }
+        }
+        request(BASESERVER + ":" +  port + "/wink/devices", function(error, response, body){
+            if(!error){
+                var responseJson = JSON.parse(body);
 
-            return callback({"paired": paired, "unpaired": unpaired});
+                var winkPaired = responseJson["paired_devices"];
+                var winkUnPaired = responseJson["unpaired_devices"];
 
-        });   
+                if(winkPaired){
+                    paired = paired.concat(winkPaired);
+                }
+
+                if(winkUnPaired){
+                    unpaired = unpaired.concat(winkUnPaired);
+                }
+
+                return callback({"paired": paired, "unpaired": unpaired});
+            }
+        });  
     });
   },
 
@@ -189,10 +185,7 @@ module.exports = {
 
         }
         
-   }
-
-
-  },
+   },
 
   removeDevice: function(id, callback) {
       //Remove a device. magically. I don't know how this will work. Try/Catch?
