@@ -106,11 +106,16 @@ app.get('/', function(req, res) {
              console.log(device);
             });
 
-            res.render('pages/index', {devices:devices['paired']});
+            if (req.query.remove){
+                res.render('pages/delete', {devices:devices['paired'], "host": req.get('host')})
+            }
+            else{ 
+                res.render('pages/index', {devices:devices['paired'], "host": req.get('host')});
+            }
 
         }
         else{
-            res.render('pages/index', {devices:{}});
+            res.render('pages/index', {devices:{}, "host": req.get('host')});
         }
         
     });
@@ -119,6 +124,10 @@ app.get('/', function(req, res) {
 
 app.get('/vendors', function(req, res){
    res.render('pages/vendors'); 
+});
+
+app.get('/vumark/:_id/:name', function(req, res){
+    res.render('pages/vumark', {"vumarkid": req.params._id, "name": req.params.name, "host": req.get('host') });
 });
 
 app.get('/addSonos', function(req, res) {
