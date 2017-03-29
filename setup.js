@@ -1,5 +1,6 @@
 var request = require('request');
-
+var SonosDM = require('./app/models/sonosController');
+var WinkDM = require('./app/models/winkController');
 
 module.exports = {
 
@@ -114,8 +115,6 @@ module.exports = {
 
   getUsedIds: function (callback) {
     var ids = []
-    var SonosDM = require('./app/models/sonosController');
-    var WinkDM = require('./app/models/winkController');
 
     WinkDM.find(function(err, wink) {
         if (!err){
@@ -133,13 +132,25 @@ module.exports = {
             }).select('_id');
         }
     }).select('_id');
-    
 
-    
+  },
 
+  removeDevice: function(id, callback) {
+      //Remove a device. magically. I don't know how this will work. Try/Catch?
 
-        // return callback(ids);
+      //Is it sonos?
+      SonosDM.findById(id, function(err, res){
+        if (err | !res){
+            WinkDM.findById(id, function(err, res){
+                if (err | !res){
+                    return callback(null);
+                }
+            }).remove().exec();
+        } else{   // Found in Sonos
+            //
+        }
+      }).remove().exec()
 
-      
+      return callback("ok");
   }
 };

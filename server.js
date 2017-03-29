@@ -91,7 +91,26 @@ app.get('/handle_wink_callback', function (req, res) {
   WINK_REFRESH_TOKEN = req.query.refresh_token;
   WINK_AUTHORIZATION = req.query.raw.data.token_type + ' ' + WINK_ACCESS_TOKEN;
   //console.log(WINK_AUTHORIZATION)
-  res.end(JSON.stringify(req.query, null, 2))
+  //res.end(JSON.stringify(req.query, null, 2))
+  //Handle wink callback will redirect to Sonos devices.
+  setup.getWink(function(devices){
+        console.log(devices);
+
+        if(devices['unpaired']){
+
+            devices['unpaired'].forEach(function(device) {
+             console.log(device);
+            });
+
+            res.render('pages/add', {devices:devices['unpaired']});
+
+        }
+        else{
+            res.render('pages/add', {devices:{}});
+        }
+        
+    });
+  
 });
 
 // Server Base Endpoint -- SETUP Dashboard
@@ -100,7 +119,7 @@ app.get('/', function(req, res) {
     setup.getDevices(function(devices){
         console.log(devices);
 
-        if(devices['paired']){
+        if(devices['paired'].length > 0){
 
             devices['paired'].forEach(function(device) {
              console.log(device);
@@ -115,15 +134,47 @@ app.get('/', function(req, res) {
 
         }
         else{
-            res.render('pages/index', {devices:{}, "host": req.get('host')});
+            res.render('pages/index', {"devices":null, "host": req.get('host')});
         }
         
     });
   //res.json({ message: 'Connected to Server' });
 });
 
+app.get('/remove/:_id', function(req, res){
+
+    setup.removeDevice(req.params._id, function(response){
+        console.log(response);
+        setup.getDevices(function(devices){
+            console.log(devices);
+
+            if(devices['paired'].length > 0){
+
+                devices['paired'].forEach(function(device) {
+                    console.log(device);
+                });
+                
+                res.render('pages/index', {devices:devices['paired'], "host": req.get('host')});
+
+            }
+            else{
+                res.render('pages/index', {"devices":null, "host": req.get('host')});
+            }
+            
+        });
+    });
+});
+
 app.get('/vendors', function(req, res){
-   res.render('pages/vendors'); 
+    var requestWink;
+    if (WINK_ACCESS_TOKEN == "" | WINK_REFRESH_TOKEN == ""){
+        //Request Wink Credentials
+         requestWink = true;
+    }
+    else{
+        requestWink = false;
+    }
+    res.render('pages/vendors', {'requestWink': requestWink, "host": req.get('host')}); 
 });
 
 app.get('/vumark/:_id/:name', function(req, res){

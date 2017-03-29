@@ -29,7 +29,7 @@
                 <img class="img-responsive" src="https://lh6.googleusercontent.com/-Px2Steg_XRM/AAAAAAAAAAI/AAAAAAAAFa4/kpB3EVdNHGw/s0-c-k-no-ns/photo.jpg" height="200" alt="">
             </div>
             <div class="col-xs-6 vcenter" style="padding-top: 100px;">
-                <a class="btn btn-primary" src="http://localhost:8081/addSonos/"> Connect to Sonos Devices <span class="glyphicon glyphicon-chevron-right"></span></a>
+                <a class="btn btn-primary" src="http://<%= host %>/addSonos/"> Connect to Sonos Devices <span class="glyphicon glyphicon-chevron-right"></span></a>
             </div>
         </div>
         <!-- /.row -->
@@ -42,7 +42,11 @@
                 <img class="img-responsive" src="https://www.winkapp.com/assets/mediakit/wink-logo-icon-knockout-50235153b274cdf35ef39fb780448596.png" height="200" alt="">
             </div>
             <div class="col-xs-6 vcenter" style="padding-top: 100px;">
-                <a class="btn btn-primary" src="http://localhost:8081/addWink/"> Connect to Wink Devices <span class="glyphicon glyphicon-chevron-right"></span></a>
+                <% if(requestWink) { %>
+                    <a class="btn btn-primary" href="http://<%= host %>/connect/wink/"> Connect to Wink Devices <span class="glyphicon glyphicon-chevron-right"></span></a>
+                <% }else { %>
+                    <a class="btn btn-primary" href="http://<%= host %>/addWink/"> Connect to Wink Devices <span class="glyphicon glyphicon-chevron-right"></span></a>
+                <% }; %> 
             </div>
         </div>
         <!-- /.row -->

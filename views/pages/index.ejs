@@ -21,36 +21,44 @@
             </div>
         </div>
         <!-- /.row -->
-
-        <% devices.forEach(function(device) { %>
-
+        <%if (!devices) { %>
             <div class="row">
-                <div class="col-xs-3 vcenter">
-                    <img class="img-responsive" src="<%= device.vendor_logo %>" height="400" alt="">
-                </div>
-                <div class="col-xs-5 text-center vcenter">
-
-                    <%if ("device_name" in device) { %>
-                        <h4> <%= device.device_name %> </h4>
-                    <% } else{ %>
-                        <h4> <%= device.device_id %> </h4>
-                    <% } %>
-                    <h4> <%= device.device_type %> </h4>  
-                </div>
-                <div class="col-xs-3 vcenter" style="padding-top: 10px;">
-
-                    <%if ("device_name" in device) { %>
-                        <a class="btn btn-primary" href="http://<%= host %>/vumark/<%= device._id %>/<%= device.device_name %>">Open <br /> VuMark<span class="glyphicon glyphicon-chevron-right"></span></a>
-                    <% } else{ %>
-                        <a class="btn btn-primary" href="http://<%= host %>/vumark/<%= device._id %>/<%= device.device_id %>">Open <br /> VuMark<span class="glyphicon glyphicon-chevron-right"></span></a>
-                    <% } %>
+                <div class="col-lg-12">
+                    <h3 class="page-header">No Devices Paired. Add a new device to get started!
+                    </h3>
                 </div>
             </div>
-            <!-- /.row -->
+        <% } else { %> 
+            <% devices.forEach(function(device) { %>
 
-            <hr>
-        
-        <% }); %>
+                <div class="row">
+                    <div class="col-xs-3 vcenter">
+                        <img class="img-responsive" src="<%= device.vendor_logo %>" height="400" alt="">
+                    </div>
+                    <div class="col-xs-5 text-center vcenter">
+
+                        <%if ("device_name" in device) { %>
+                            <h4> <%= device.device_name %> </h4>
+                        <% } else{ %>
+                            <h4> <%= device.device_id %> </h4>
+                        <% } %>
+                        <h4> <%= device.device_type %> </h4>  
+                    </div>
+                    <div class="col-xs-3 vcenter" style="padding-top: 10px;">
+
+                        <%if ("device_name" in device) { %>
+                            <a class="btn btn-primary" href="http://<%= host %>/vumark/<%= device._id %>/<%= device.device_name %>">Open <br /> VuMark<span class="glyphicon glyphicon-chevron-right"></span></a>
+                        <% } else{ %>
+                            <a class="btn btn-primary" href="http://<%= host %>/vumark/<%= device._id %>/<%= device.device_id %>">Open <br /> VuMark<span class="glyphicon glyphicon-chevron-right"></span></a>
+                        <% } %>
+                    </div>
+                </div>
+                <!-- /.row -->
+
+                <hr>
+            
+            <% }); %>
+        <% }; %>
 
 
     </main>
