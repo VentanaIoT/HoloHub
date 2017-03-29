@@ -102,15 +102,13 @@ app.get('/handle_wink_callback', function (req, res) {
              console.log(device);
             });
 
-            res.render('pages/add', {devices:devices['unpaired']});
+            res.render('pages/add', {"devices":devices['unpaired'], "host": req.get('host')});
 
         }
         else{
-            res.render('pages/add', {devices:{}});
-        }
-        
+            res.render('pages/add', {"devices":null, "host": req.get('host')});
+        } 
     });
-  
 });
 
 // Server Base Endpoint -- SETUP Dashboard
@@ -251,11 +249,11 @@ app.get('/addWink', function(req, res) {
              console.log(device);
             });
 
-            res.render('pages/add', {devices:devices['unpaired']});
+            res.render('pages/add', {"devices":devices['unpaired'], "host": req.get('host')});
 
         }
         else{
-            res.render('pages/add', {devices:{}});
+            res.render('pages/add', {"devices":null, "host": req.get('host')});
         }
         
     });
