@@ -1,0 +1,51 @@
+<!-- views/pages/vumark.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <% include ../partials/nav %>
+
+    <main>
+        <!-- Page Content -->
+        <div class="container">
+
+        <!-- Page Heading -->
+        <div class="row">
+            <div class="col-lg-12 text-center" style="margin-top: -40px;">
+                <h1 class="page-header"><%= name %>
+                </h1>
+            </div>
+        </div>
+        <!-- /.row -->
+
+
+        <!-- Project One -->
+        <div class="row">
+            <div class="col-xs-12 text-center vcenter">
+                <img class="img-responsive" src="http://<%= host %>/targets/<%= vumarkid %>.png" height="200" alt="">
+            </div>
+        </div>
+        
+        <!-- /.row -->
+
+        <hr>
+
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h3 class="page-header"><a href="/">Return to Home</a>
+                </h3>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

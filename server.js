@@ -67,6 +67,13 @@ WINK_AUTHORIZATION = 'bearer 82pXcnWl6h-5wPyTIrBJBYqxve-ZHih7';
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://ventana:Pistachio1@ds054999.mlab.com:54999/ventana');
 
+// View Engine
+app.set('view engine', 'ejs');
+app.use(express.static('public'))
+
+// Setup JS
+var setup = require('./setup');
+
 // Add Routers (Modules)
 var sonos = require('./routes/sonos');
 var wink = require('./routes/wink');
@@ -84,13 +91,207 @@ app.get('/handle_wink_callback', function (req, res) {
   WINK_REFRESH_TOKEN = req.query.refresh_token;
   WINK_AUTHORIZATION = req.query.raw.data.token_type + ' ' + WINK_ACCESS_TOKEN;
   //console.log(WINK_AUTHORIZATION)
-  res.end(JSON.stringify(req.query, null, 2))
+  //res.end(JSON.stringify(req.query, null, 2))
+  //Handle wink callback will redirect to Sonos devices.
+  setup.getWink(function(devices){
+        console.log(devices);
+
+        if(devices['unpaired']){
+
+            devices['unpaired'].forEach(function(device) {
+             console.log(device);
+            });
+
+            res.render('pages/add', {"devices":devices['unpaired'], "host": req.get('host')});
+
+        }
+        else{
+            res.render('pages/add', {"devices":null, "host": req.get('host')});
+        } 
+    });
 });
 
-// Server Base Endpoint
+// Server Base Endpoint -- SETUP Dashboard
+
 app.get('/', function(req, res) {
-  res.json({ message: 'Connected to Server' });
+    setup.getDevices(function(devices){
+        console.log(devices);
+
+        if(devices['paired'].length > 0){
+
+            devices['paired'].forEach(function(device) {
+             console.log(device);
+            });
+
+            if (req.query.remove){
+                res.render('pages/delete', {"devices":devices['paired'], "host": req.get('host')})
+            }
+            else{ 
+                res.render('pages/index', {"devices":devices['paired'], "host": req.get('host')});
+            }
+
+        }
+        else{
+            res.render('pages/index', {"devices":null, "host": req.get('host')});
+        }
+        
+    });
+  //res.json({ message: 'Connected to Server' });
 });
+
+app.get('/remove/:_id', function(req, res){
+
+    setup.removeDevice(req.params._id, function(response){
+        console.log(response);
+        setup.getDevices(function(devices){
+            console.log(devices);
+
+            if(devices['paired'].length > 0){
+
+                devices['paired'].forEach(function(device) {
+                    console.log(device);
+                });
+                
+                res.render('pages/index', {"devices":devices['paired'], "host": req.get('host')});
+
+            }
+            else{
+                res.render('pages/index', {"devices":null, "host": req.get('host')});
+            }
+            
+        });
+    });
+});
+
+app.get('/vendors', function(req, res){
+    var requestWink;
+    if (WINK_ACCESS_TOKEN == "" | WINK_REFRESH_TOKEN == ""){
+        //Request Wink Credentials
+         requestWink = true;
+    }
+    else{
+        requestWink = false;
+    }
+    res.render('pages/vendors', {'requestWink': requestWink, "host": req.get('host')}); 
+});
+
+app.get('/vumark/:_id/:name', function(req, res){
+    res.render('pages/vumark', {"vumarkid": req.params._id, "name": req.params.name, "host": req.get('host') });
+});
+
+app.get('/addSonos', function(req, res) {
+    setup.getSonos(function(devices){
+        console.log(devices);
+
+        if(devices != null && devices['unpaired'].length > 0){
+
+            devices['unpaired'].forEach(function(device) {
+             console.log(device);
+            });
+
+                res.render('pages/add', {"devices":devices['unpaired'], "host": req.get('host')});
+
+        }
+        else{
+            res.render('pages/add', {"devices":null, "host": req.get('host')});
+        }
+        
+    });
+});
+
+app.get('/savenew/:vendor', function(req, res){
+    setup.getUsedIds(function(values){
+        //console.log(values);
+        if (req.params.vendor != "1" && req.params.vendor != "2") {
+            res.json({"message" : "incorrect vendor id entered"});
+        } else {
+
+            var newId = 1;
+            while (newId < 16) {
+                if (values.includes(newId.toString())) {
+                    newId++;
+                } else {
+                    break;
+                }
+            }
+
+            //console.log("New ID to use: " + newId);
+
+            if (newId >= 16) {
+                res.send({"message": "The number of vumark ids has been exhausted"});
+            }
+            // Based on vendor, create object in the correct SonosDM or WinkDM object
+            // vendor == 1 -- sonos
+            // vendor == 2 -- wink
+            // Will recieve value from url query parameters:
+            // - device_name
+            // - device_type
+            // - [all the things in the sonos/wink object]
+            // - assign it an _id that is not in the the `getUsedIDs` list less than 15.
+            var object = {
+                '_id' : newId.toString(),
+                'device_id' : req.query.device_id,
+                'device_type' : req.query.device_type,
+                'vendor' : req.params.vendor,
+                'vendor_logo': req.query.vendor_logo,
+                'device_name': req.query.device_name,
+                'controller': req.query.controller
+            }
+            
+            setup.saveNewDevice(object, function(returnValue){
+                //console.log(returnValue);
+                if (returnValue == null){
+                    // Create new view for errors.
+                    res.json({"message" : "unsuccessful saving of new device"});
+                } else {
+                    // successfully saved device with id == returnValue
+                    res.redirect('../../');
+                    //res.json({"message" : "success! with id #" + returnValue});
+                }
+            });
+        } 
+    });
+        
+        //res.json({ message: 'test'});       
+});
+
+app.get('/addWink', function(req, res) {
+    setup.getWink(function(devices){
+        console.log(devices);
+
+        if(devices != null && devices['unpaired'].length > 0){
+            
+            devices['unpaired'].forEach(function(device) {
+             console.log(device);
+            });
+
+            res.render('pages/add', {"devices":devices['unpaired'], "host": req.get('host')});
+
+        }
+        else{
+            res.render('pages/add', {"devices":null, "host": req.get('host')});
+        }
+        
+    });
+  //res.json({ message: 'Connected to Server' });
+});
+
+// used by the Ventana application to get config of paired devices
+app.get('/holoconfig', function(req, res){
+
+    setup.getConfig(function(returnJSON) {
+        //console.log(JSON.stringify(returnJSON));
+        
+        if (returnJSON != null) {
+            res.send(returnJSON);
+        } else {
+            res.send({"message": "Something went wrong in holoconfig endpoint"})
+        }
+    });
+
+});
+
+
 
 // Socket.IO POST endpoint to send a sockets message
 app.post('/socketsend', function(req, res) {

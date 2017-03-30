@@ -1,0 +1,71 @@
+<!-- views/pages/add.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <% include ../partials/nav %>
+
+    <main>
+        <!-- Page Content -->
+        <div class="container">
+
+        <!-- Page Heading -->
+        <div class="row">
+            <div class="col-lg-12 text-center"  style="margin-top: -40px;"">
+                <h1 class="page-header text-center">Add Device
+                </h1>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <%if (!devices) { %>
+            <div class="row">
+                <div class="col-lg-12">
+                    <h3 class="page-header">No devices found! Please check your network and connections.
+                    </h3>
+                </div>
+            </div>
+        <% } else { %>
+
+            <% devices.forEach(function(device) { %>
+
+                <div class="row">
+                    <div class="col-xs-8 vcenter">
+
+                        <%if ("device_name" in device) { %>
+                            <h3> <%= device.device_name %> </h3>
+                        <% } else{ %>
+                            <h3> <%= device.device_id %> </h3>
+                        <% } %>
+                        <h4> <%= device.device_type %> </h4>  
+                    </div>
+                    <div class="col-xs-4 vcenter" style="padding-top: 30px;">
+                        <a class="btn btn-primary" href="http://<%= host %>/savenew/<%= device.vendor %>/?device_id=<%= device.device_id %>&device_type=<%= device.device_type %>&device_name=<%= device.device_name %>&controller=<%= device.controller %>&vendor_logo=<%= device.vendor_logo %>"> Pair Device <span class="glyphicon glyphicon-chevron-right"></span></a>
+                    </div>
+                </div>
+                <!-- /.row -->
+
+                <hr>
+            
+            <% }); %>
+        <% }; %>
+
+
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../js/bootstrap.min.js"></script>
+    
+</body>
+</html>

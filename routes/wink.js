@@ -2,11 +2,8 @@ var express = require('express');
 var router = express.Router();
 var request = require('request');
 var WinkDM = require('../app/models/winkController');
-
+var setup = require('../setup');
 var WINK_HTTP_SERVER = "https://api.wink.com/"
-
-var morgan = require('morgan');
-router.use(morgan('dev'));
 
 // convert Wink response into Wink HoloHub Object friendly response
 function winkSummary(body, callback) {
@@ -15,6 +12,7 @@ function winkSummary(body, callback) {
 
     winkSendData["device_type"] = winkRequestData.data.object_type + "s";
     winkSendData["device_id"] = winkRequestData.data.object_id;
+    winkSendData["vendor_logo"] = winkRequestData.data.vendor_logo;
 
     if (winkRequestData.data.object_type == "powerstrip"){
         winkSendData["outlets"] = [];
@@ -70,7 +68,12 @@ router.route('/')
     .get(function(req,res){
         if (WINK_AUTHORIZATION != null) {
             //console.log(WINK_AUTHORIZATION)
-            res.json({ message: 'Connected to Wink Module'});
+            WinkDM.find(function(err, sonos) {
+              if (err)
+                  res.send(err);
+              
+              res.json(sonos);
+            });
         } else {
             //console.log("WINK_AUTHORIZATION is null");
             res.json({message: 'Not connected to Wink!'});
@@ -89,9 +92,27 @@ router.route('/')
         if (req.body.device_type != null){
             wink.device_type = req.body.device_type;
         }
-        /*if (req.body.controller != null){
-            wink.controller = req.body.controller;
-        }*/
+        if (req.body.device_name != null){
+            wink.device_name = req.body.device_name;
+        }
+        if (req.body.vendor_logo != null) {
+            wink.vendor_logo = req.body.vendor_logo;
+        }
+        if (req.body.vendor != null) {
+            wink.vendor = req.body.vendor;
+        }
+        else{
+            wink.vendor = "2"; //vendor is wink
+        }
+
+        // wink controller is path to hololens VentanaConfig.json
+        if (wink.device_type == "light_bulbs") {
+            wink.controller = "Ventana/Prefabs/LightController";
+        } else if (wink.device_type == "powerstrips") {
+            wink.controller = "Ventana/Prefabs/PowerStripController";
+        } else {
+            wink.controller = null;
+        }
 
         request({
             method: 'GET',
@@ -109,9 +130,9 @@ router.route('/')
                         res.json({message: 'WinkDM object created!'});
                     };
                 });
-                res.json((JSON.parse(body)).data);
+                // res.json((JSON.parse(body)).data);
             } else {
-                console.log("error in POST")
+                console.log("error in 'wink/' POST: " + response.statusCode)
                 //res.send(statusCode=500, "Not Started or Connected");
                 res.send({message : "this didn't work"});
             };
@@ -146,14 +167,15 @@ router.get('/wink_devices', function(req, res){
                 } else if (item.powerstrip_id != null){
                     deviceTemp["device_id"] = item.powerstrip_id;
                     deviceTemp["device_type"] = 'powerstrips';
-                } else if (item.manufacturer_device_model == "wink_hub") {
+                }/* else if (item.manufacturer_device_model == "wink_hub") {
                     deviceTemp["device_id"] = item.hub_id;
                     deviceTemp["device_type"] = 'hubs';
-                }
-                else {
+                }*/ else {
                     console.log("Device type not supported");
                 }
-                deviceTemp["name"] = item.name;
+                deviceTemp["name"] = item.name;         //Kept for legacy. Need to test for removal
+                deviceTemp["device_name"] = item.name;
+                deviceTemp["vendor_logo"] = item.vendor_logo;
                 /*getVumarkByDeviceID(deviceTemp["device_id"], function (returnObject){
                     if (returnObject != null) {
                         // this device has a vumark id linked to item
@@ -171,6 +193,59 @@ router.get('/wink_devices', function(req, res){
         }
     });
      
+});
+
+//GET all devices connected to the HoloHub
+router.get('/devices', function(req, res){
+    var winkDevices = {'paired_devices': [], 'unpaired_devices': []};
+    var connectedDevices = {};
+
+    // Retrieve all devices paired with the HoloHub, place into a dictionary {device_id: _id}
+    request(BASESERVER + ':' +  port + '/wink/', function(error, response, body){
+        if(!error && response.statusCode == 200) {
+        var temp1 = JSON.parse(body);
+        temp1.forEach(function(arrayItem){
+            connectedDevices[arrayItem.device_id] = arrayItem;
+        });
+
+        // Discover all Wink devices on the Wink.COM
+        request(BASESERVER + ':' +  port + '/wink/wink_devices/', function(error, response, body){
+            if (!error && response.statusCode == 200) {
+                var sonosRequestData = JSON.parse(body)['device_list'];
+
+                sonosRequestData.forEach( function(arrayItem) {
+                //If device name is in connectedDevices, then device is paired -- show w/ it's vumark ID
+                if(arrayItem.device_id in connectedDevices){
+                    winkDevices.paired_devices.push(connectedDevices[arrayItem.device_id]);
+                }        
+                else
+                {
+                    if(arrayItem.device_type in setup.supportedDevices){
+                        var temp1 = {
+                            "device_id": arrayItem.device_id,
+                            "device_type": arrayItem.device_type,
+                            "device_name": arrayItem.device_name,
+                            "controller": setup.supportedDevices[arrayItem.device_type],
+                            "vendor_logo": "https://www.winkapp.com/assets/mediakit/wink-logo-icon-knockout-50235153b274cdf35ef39fb780448596.png",
+                            "vendor": 2
+                        }
+                        winkDevices.unpaired_devices.push(temp1);
+                    }
+                    
+                }
+                });
+                res.json(winkDevices);       
+            }
+            else{
+            error = error1;
+            };
+        });
+        }
+        else{
+        console.log(error);
+        res.send("Error " + error, statusCode=500);
+        };
+    });
 });
 
 // gets the light_bulb status for the particular id

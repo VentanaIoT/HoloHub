@@ -70,9 +70,9 @@ router.route('/')
     SonosDM.find(function(err, sonos) {
               if (err)
                   res.send(err);
-
+              
               res.json(sonos);
-          }).select('device_id');
+          });
   })
 
   .post(function(req, res){ 
@@ -89,10 +89,18 @@ router.route('/')
 
     if("_id" in req.body)
       sonos._id = req.body._id
-    if("device_id" in req.body)
-      sonos.device_id = req.body.device_id
-    if("controller" in req.body)
-      sonos.controller = req.body.controller
+    if("device_id" in req.body) {
+      sonos.device_id = req.body.device_id;
+      sonos.device_name = req.body.device_id;
+    }
+    if("vendor_logo" in req.body)
+      sonos.vendor_logo = req.body.vendor_logo
+    
+    //if("controller" in req.body)
+    sonos.controller = "Ventana/Prefabs/MusicController";
+    sonos.vendor = "1" ; //specific for sonos devices
+    // For sonos. save device state
+    sonos.device_type = 'Sonos Speaker';
 
     // Lookup sonos state data calling device_id. Verify that the connection can be made.
     request(BASESERVER + ":" + port + '/sonos/status/' + sonos.device_id + '?skiplookup=true', function (error, response, body) {
@@ -235,7 +243,7 @@ router.get('/reverse/:vumark_id', function(req, res){
 });
 
 // Volume Control
-router.post('/volume/:vumark_id/', function(req, res){
+router.post('/volume/:vumark_id', function(req, res){
   getDeviceIDbyVumarkID(req.params.vumark_id, function(device_id){
     request(SONOS_HTTP_SERVER + '/' + device_id + '/volume/' + req.body.value, function(error, response, body){
       if (!error && response.statusCode == 200) {
@@ -257,34 +265,41 @@ router.get('/devices', function(req, res){
   var connectedDevices = {}
   
   // Retrieve all devices paired with the HoloHub, place into a dictionary {device_id: _id}
-  request(BASESERVER + ':' +  port + '/sonos/', function(error, response, body){
+  request(BASESERVER + ':' +  port + '/sonos/', {timeout: 500}, function(error, response, body){
     if(!error && response.statusCode == 200) {
       var temp1 = JSON.parse(body);
       temp1.forEach(function(arrayItem){
-        connectedDevices[arrayItem.device_id] = arrayItem._id;
+        connectedDevices[arrayItem.device_id] = arrayItem;
       });
 
       // Discover all sonos devices on the network
-      request(SONOS_HTTP_SERVER + '/' + 'zones', function (error1, response, body) {
+      request(SONOS_HTTP_SERVER + '/' + 'zones', {timeout: 500}, function (error1, response, body) {
         if (!error1 && response.statusCode == 200) {
             var sonosRequestData = JSON.parse(body);
 
             sonosRequestData.forEach( function(arrayItem) {
               //If device name is in connectedDevices, then device is paired -- show w/ it's vumark ID
               if(arrayItem.coordinator.roomName in connectedDevices){
-                var temp1 = {};
-                temp1[arrayItem.coordinator.roomName] = connectedDevices[arrayItem.coordinator.roomName];
-                sonosDevices.paired_devices.push(temp1);
+                sonosDevices.paired_devices.push(connectedDevices[arrayItem.coordinator.roomName]);
               }        
               else
               {
-                sonosDevices.unpaired_devices.push(arrayItem.coordinator.roomName);
+                var temp1 = {
+                  "device_id": arrayItem.coordinator.roomName,
+                  "device_type": "Sonos Speaker",
+                  "device_name": arrayItem.coordinator.roomName,
+                  "controller": "Ventana/Prefabs/MusicController",
+                  "vendor": '1',
+                  "vendor_logo": 'https://lh6.googleusercontent.com/-Px2Steg_XRM/AAAAAAAAAAI/AAAAAAAAFa4/kpB3EVdNHGw/s0-c-k-no-ns/photo.jpg'
+                }
+                sonosDevices.unpaired_devices.push(temp1);
               }
             });
             res.json(sonosDevices);       
         }
         else{
-          error = error1;
+          console.log(error1);
+          res.send("Error", statusCode=500);
         };
       });
     }
