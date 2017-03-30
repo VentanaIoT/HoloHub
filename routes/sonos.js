@@ -243,7 +243,7 @@ router.get('/reverse/:vumark_id', function(req, res){
 });
 
 // Volume Control
-router.post('/volume/:vumark_id/', function(req, res){
+router.post('/volume/:vumark_id', function(req, res){
   getDeviceIDbyVumarkID(req.params.vumark_id, function(device_id){
     request(SONOS_HTTP_SERVER + '/' + device_id + '/volume/' + req.body.value, function(error, response, body){
       if (!error && response.statusCode == 200) {

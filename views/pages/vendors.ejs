@@ -15,9 +15,8 @@
 
         <!-- Page Heading -->
         <div class="row">
-            <div class="col-lg-12">
-                <h1 class="page-header">Add Device
-                    <small>Select Vendor</small>
+            <div class="col-lg-12 text-center"  style="margin-top: -40px;"">
+                <h1 class="page-header text-center">Add Device
                 </h1>
             </div>
         </div>
@@ -25,10 +24,10 @@
 
         <!-- Project One -->
         <div class="row">
-            <div class="col-xs-6 vcenter">
+            <div class="col-xs-4 vcenter">
                 <img class="img-responsive" src="https://lh6.googleusercontent.com/-Px2Steg_XRM/AAAAAAAAAAI/AAAAAAAAFa4/kpB3EVdNHGw/s0-c-k-no-ns/photo.jpg" height="200" alt="">
             </div>
-            <div class="col-xs-6 vcenter" style="padding-top: 100px;">
+            <div class="col-xs-8 vcenter" style="padding-top: 30px;">
                 <a class="btn btn-primary" href="http://<%= host %>/addSonos/"> Connect to Sonos Devices <span class="glyphicon glyphicon-chevron-right"></span></a>
             </div>
         </div>
@@ -38,10 +37,10 @@
 
         <!-- Project Two -->
         <div class="row">
-            <div class="col-xs-6 vcenter">
+            <div class="col-xs-4 vcenter">
                 <img class="img-responsive" src="https://www.winkapp.com/assets/mediakit/wink-logo-icon-knockout-50235153b274cdf35ef39fb780448596.png" height="200" alt="">
             </div>
-            <div class="col-xs-6 vcenter" style="padding-top: 100px;">
+            <div class="col-xs-8 vcenter" style="padding-top: 30px;">
                 <% if(requestWink) { %>
                     <a class="btn btn-primary" href="http://<%= host %>/connect/wink/"> Connect to Wink Devices <span class="glyphicon glyphicon-chevron-right"></span></a>
                 <% }else { %>
