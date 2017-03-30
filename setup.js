@@ -52,6 +52,54 @@ module.exports = {
     });
   },
 
+  // gets a json specific for the HoloLens required config file
+  getConfig: function(callback) {
+
+    var configJSON = {}; 
+
+    configJSON["User"] = "VentanaUser"; //hard coded for now, until I know how it updates
+    configJSON["VentanaMarks"] = []
+
+    var vmIndex = 0; //uses to index the VentanaMarks
+
+    request(BASESERVER + ":" +  port + "/sonos/devices", function(error, response, body){
+        if(response.statusCode == 200){
+            var responseJson = JSON.parse(body);
+            
+            var sonosPaired = responseJson["paired_devices"];
+
+            sonosPaired.forEach(function(item, index) {
+                var tempSonos = {};
+                tempSonos["id"] = item._id;
+                tempSonos["name"] = item.device_name;
+                tempSonos["path"] = item.controller;
+                configJSON.VentanaMarks[vmIndex] = tempSonos;
+                vmIndex++;
+            });
+
+        }
+        request(BASESERVER + ":" +  port + "/wink/devices", function(error, response, body){
+            if(!error){
+                var responseJson = JSON.parse(body);
+                
+                var winkPaired = responseJson["paired_devices"];
+
+                winkPaired.forEach(function(item, index){
+                    var tempWink = {};
+                    tempWink["id"] = item._id;
+                    tempWink["name"] = item.device_name;
+                    tempWink["path"] = item.controller;
+                    configJSON.VentanaMarks[vmIndex] = tempWink; 
+                    vmIndex++;
+                });
+            }
+            return callback(configJSON); //even if no paired devices, the structure for config is still sent back
+        });  
+    });
+
+ 
+  },
+
   getSonos: function (callback) {
     // Get Sonos Data 
 

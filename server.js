@@ -276,6 +276,21 @@ app.get('/addWink', function(req, res) {
   //res.json({ message: 'Connected to Server' });
 });
 
+// used by the Ventana application to get config of paired devices
+app.get('/holoconfig', function(req, res){
+
+    setup.getConfig(function(returnJSON) {
+        //console.log(JSON.stringify(returnJSON));
+        
+        if (returnJSON != null) {
+            res.send(returnJSON);
+        } else {
+            res.send({"message": "Something went wrong in holoconfig endpoint"})
+        }
+    });
+
+});
+
 
 
 // Socket.IO POST endpoint to send a sockets message
