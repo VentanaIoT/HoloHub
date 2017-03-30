@@ -124,10 +124,10 @@ app.get('/', function(req, res) {
             });
 
             if (req.query.remove){
-                res.render('pages/delete', {devices:devices['paired'], "host": req.get('host')})
+                res.render('pages/delete', {"devices":devices['paired'], "host": req.get('host')})
             }
             else{ 
-                res.render('pages/index', {devices:devices['paired'], "host": req.get('host')});
+                res.render('pages/index', {"devices":devices['paired'], "host": req.get('host')});
             }
 
         }
@@ -152,7 +152,7 @@ app.get('/remove/:_id', function(req, res){
                     console.log(device);
                 });
                 
-                res.render('pages/index', {devices:devices['paired'], "host": req.get('host')});
+                res.render('pages/index', {"devices":devices['paired'], "host": req.get('host')});
 
             }
             else{
@@ -189,7 +189,7 @@ app.get('/addSonos', function(req, res) {
              console.log(device);
             });
 
-            res.render('pages/add', {devices:devices['unpaired']});
+                res.render('pages/add', {"devices":devices['unpaired'], "host": req.get('host')});
 
         }
         else{

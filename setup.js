@@ -65,11 +65,11 @@ module.exports = {
             var sonosPaired = responseJson["paired_devices"];
             var sonosUnpaired = responseJson["unpaired_devices"];
 
-            if(sonosPaired){
+            if(sonosPaired.length > 0){
                 paired = paired.concat(sonosPaired);
             }
 
-            if(sonosUnpaired){
+            if(sonosUnpaired.length > 0){
                 unpaired = unpaired.concat(sonosUnpaired);
             }  
 
