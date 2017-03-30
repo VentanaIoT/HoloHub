@@ -70,7 +70,7 @@ module.exports = {
 
             sonosPaired.forEach(function(item, index) {
                 var tempSonos = {};
-                tempSonos["id"] = item._id;
+                tempSonos["id"] = "0x0" + (item._id).toString(16);
                 tempSonos["name"] = item.device_name;
                 tempSonos["path"] = item.controller;
                 configJSON.VentanaMarks[vmIndex] = tempSonos;
@@ -86,7 +86,7 @@ module.exports = {
 
                 winkPaired.forEach(function(item, index){
                     var tempWink = {};
-                    tempWink["id"] = item._id;
+                    tempWink["id"] = "0x0" + (item._id).toString(16);
                     tempWink["name"] = item.device_name;
                     tempWink["path"] = item.controller;
                     configJSON.VentanaMarks[vmIndex] = tempWink; 
