@@ -1,3 +1,5 @@
+//Allow execution of script outside of root directory
+process.chdir(__dirname);
 // call the packages we need
 var express    = require('express');
 var bodyParser = require('body-parser');
