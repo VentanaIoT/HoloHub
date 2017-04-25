@@ -16,7 +16,7 @@ var io = require('socket.io')(server);
 io.set('transports', ['websocket']);
 
 //SerialPorts
-var SerialPorts = require('serialport');
+var SerialPort = require('serialport');
 
 // //PubNub Notifications
 // var PubNub = require('pubnub')
