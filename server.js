@@ -78,6 +78,7 @@ var sp = new SerialPort(portName, portConfig);
 sp.on("open", function () {
   console.log('open');
   sp.on('data', function(data) {
+      data = {'data': data}
     console.log('data received: ' + data);
     io.emit("position", data);
   });
