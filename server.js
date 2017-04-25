@@ -15,6 +15,9 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 io.set('transports', ['websocket']);
 
+//SerialPorts
+var SerialPorts = require('serialport');
+
 // //PubNub Notifications
 // var PubNub = require('pubnub')
 // var pubnub = new PubNub({
@@ -64,6 +67,21 @@ BASESERVER = 'http://localhost';
 WINK_ACCESS_TOKEN = "";
 WINK_REFRESH_TOKEN = "";
 WINK_AUTHORIZATION = 'bearer 82pXcnWl6h-5wPyTIrBJBYqxve-ZHih7';
+
+// SerialPort 
+var portName = '/dev/rfcomm0'
+var portConfig = {
+	baudRate: 9600,
+	parser: SerialPort.parsers.readline("\n")
+};
+var sp = new SerialPort(portName, portConfig);
+sp.on("open", function () {
+  console.log('open');
+  sp.on('data', function(data) {
+    console.log('data received: ' + data);
+    io.emit("position", data);
+  });
+});
 
 // connect to our database
 var mongoose = require('mongoose');
