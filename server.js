@@ -142,10 +142,10 @@ sp.on("open", function () {
 
                 var result = runningXAverage[runningXAverage.length-1] + ' ' + runningYAverage[runningYAverage.length-1] + ' ' + runningZAverage[runningZAverage.length-1];
                 
-                console.log(result);
+                console.log(data + "\t|\t" + result)
                 data = {'1': result}
                 
-                io.emit("position", result);
+                io.emit("position", data);
             }
           }
           finally{
