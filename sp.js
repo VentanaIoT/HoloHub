@@ -10,10 +10,8 @@ var portConfig = {
 
 const COUNTVALUES = 10;
 const SMOOTHING = 35;
-//var runningXAverage;
-//var runningYAverage;
-//var runningZAverage;
 var initial = true;
+
 var runningXAverage = queue(COUNTVALUES);
 var runningYAverage = queue(COUNTVALUES);
 var runningZAverage = queue(COUNTVALUES);
@@ -66,7 +64,7 @@ sp.on("open", function () {
           try{
             coordinate = parseData(data);
             if(coordinate != null){
-                console.log('data received: ' + data);
+                //console.log('data received: ' + data);
                 //If initial sample <10 samples
                 //if(initial == true){
                     runningXAverage.push(Math.round(coordinate[0] * 1000) / 1000);
@@ -89,7 +87,7 @@ sp.on("open", function () {
                     console.log(result);
                     data = {'1': result}
                     
-                    //io.emit("position", data);
+                    io.emit("position", result);
                 //}
             }
           }

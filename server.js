@@ -15,9 +15,6 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 io.set('transports', ['websocket']);
 
-//SerialPorts
-var SerialPort = require('serialport');
-
 // //PubNub Notifications
 // var PubNub = require('pubnub')
 // var pubnub = new PubNub({
@@ -68,21 +65,93 @@ WINK_ACCESS_TOKEN = "";
 WINK_REFRESH_TOKEN = "";
 WINK_AUTHORIZATION = 'bearer 82pXcnWl6h-5wPyTIrBJBYqxve-ZHih7';
 
-// SerialPort 
+//SerialPorts
+var SerialPorts = require('serialport');
 var portName = '/dev/rfcomm0'
 var portConfig = {
 	baudRate: 9600,
-	parser: SerialPort.parsers.readline("\n")
+	parser: SerialPorts.parsers.readline("\n")
 };
-var sp = new SerialPort(portName, portConfig);
+
+const COUNTVALUES = 10;
+const SMOOTHING = 35;
+var initial = true;
+
+var runningXAverage = queue(COUNTVALUES);
+var runningYAverage = queue(COUNTVALUES);
+var runningZAverage = queue(COUNTVALUES);
+
+
+
+function parseData(data){
+  var xyz = data.split(" ");
+  if(xyz.length != 3){
+      return null
+  }
+  for(var i=xyz.length; i--;){
+      if(isNaN(xyz[i])){
+          return null
+      }
+      xyz[i] = parseFloat(xyz[i]);
+      if(isNaN(xyz[i])){
+          return null
+      }
+  } 
+  return xyz
+}
+
+function queue(len) {
+    var ret = [];
+
+    ret.push = function(a) {
+        if(ret.length == len) ret.shift();
+        return Array.prototype.push.apply(this, arguments);
+    };
+
+    return ret;
+}
+
+function smoothArray(values){
+  var value = values[0]; // start with the first input
+  for (var i=1, len=values.length; i<len; ++i){
+    var currentValue = values[i];
+    value += (currentValue - value) / SMOOTHING;
+    values[i] = Math.round(value * 1000) / 1000;
+  }
+  return values
+}
+
+var sp = new SerialPorts(portName, portConfig);
 sp.on("open", function () {
   console.log('open');
   sp.on('data', function(data) {
       if(data != ""){
-          data = {'1': data}
+          try{
+            coordinate = parseData(data);
+            if(coordinate != null){
+                runningXAverage.push(Math.round(coordinate[0] * 1000) / 1000);
+                runningYAverage.push(Math.round(coordinate[1] * 1000) / 1000);
+                runningZAverage.push(Math.round(coordinate[2] * 1000) / 1000);
+                runningXAverage = smoothArray(runningXAverage);    //Parse X value to INT
+                runningYAverage = smoothArray(runningYAverage);
+                runningZAverage = smoothArray(runningZAverage);
+                
+                // console.log("X Smoothing: " + runningXAverage);
+                // console.log("Y Smoothing: " + runningYAverage);
+                // console.log("Z Smoothing: " + runningZAverage);
+
+                var result = runningXAverage[runningXAverage.length-1] + ' ' + runningYAverage[runningYAverage.length-1] + ' ' + runningZAverage[runningZAverage.length-1];
+                
+                console.log(result);
+                data = {'1': result}
+                
+                io.emit("position", result);
+            }
+          }
+          finally{
+            //Do nothing
+          }
       }
-    // console.log('data received: ' + data);
-    io.emit("position", data);
   });
 });
 
