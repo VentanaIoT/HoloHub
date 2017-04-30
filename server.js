@@ -73,7 +73,7 @@ var portConfig = {
 	parser: SerialPorts.parsers.readline("\n")
 };
 
-const COUNTVALUES = 10;
+const COUNTVALUES = 4;
 const SMOOTHING = 35;
 var initial = true;
 
@@ -128,22 +128,16 @@ sp.on("open", function () {
       if(data != ""){
           try{
             coordinate = parseData(data);
-            if(coordinate != null){
-                runningXAverage.push(Math.round(coordinate[0] * 1000) / 1000);
-                runningYAverage.push(Math.round(coordinate[1] * 1000) / 1000);
-                runningZAverage.push(Math.round(coordinate[2] * 1000) / 1000);
-                runningXAverage = smoothArray(runningXAverage);    //Parse X value to INT
-                runningYAverage = smoothArray(runningYAverage);
-                runningZAverage = smoothArray(runningZAverage);
-                
-                // console.log("X Smoothing: " + runningXAverage);
-                // console.log("Y Smoothing: " + runningYAverage);
-                // console.log("Z Smoothing: " + runningZAverage);
+            var x,y,z;
+	    if(coordinate != null){
+                x = (-1 * coordinate[0]);
+		y = coordinate[1];
+		z = coordinate[2];
 
-                var result = runningXAverage[runningXAverage.length-1] + ' ' + runningYAverage[runningYAverage.length-1] + ' ' + runningZAverage[runningZAverage.length-1];
-                
+                var result = x + ' ' + y + ' ' + z;
+                var viveResult = x + " " + y + " " + z;
                 console.log(data + "\t|\t" + result)
-                data = {'1': result}
+                data = {'1': viveResult}
                 
                 io.emit("position", data);
             }
