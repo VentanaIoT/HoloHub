@@ -83,7 +83,7 @@ module.exports = {
                 var responseJson = JSON.parse(body);
                 
                 var winkPaired = responseJson["paired_devices"];
-                if(winkPaired.length != 0){
+                if(winkPaired){
                     winkPaired.forEach(function(item, index){
                         var tempWink = {};
                         tempWink["id"] = "0x0" + (item._id).toString(16);
