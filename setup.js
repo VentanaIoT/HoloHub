@@ -83,18 +83,19 @@ module.exports = {
                 var responseJson = JSON.parse(body);
                 
                 var winkPaired = responseJson["paired_devices"];
-
-                winkPaired.forEach(function(item, index){
-                    var tempWink = {};
-                    tempWink["id"] = "0x0" + (item._id).toString(16);
-                    tempWink["name"] = item.device_name;
-                    tempWink["path"] = item.controller;
-                    configJSON.VentanaMarks[vmIndex] = tempWink; 
-                    vmIndex++;
-                });
+                if(winkPaired.length != 0){
+                    winkPaired.forEach(function(item, index){
+                        var tempWink = {};
+                        tempWink["id"] = "0x0" + (item._id).toString(16);
+                        tempWink["name"] = item.device_name;
+                        tempWink["path"] = item.controller;
+                        configJSON.VentanaMarks[vmIndex] = tempWink; 
+                        vmIndex++;
+                    });
+                }
             }
-            return callback(configJSON); //even if no paired devices, the structure for config is still sent back
-        });  
+        });
+        return callback(configJSON); //even if no paired devices, the structure for config is still sent back  
     });
 
  
