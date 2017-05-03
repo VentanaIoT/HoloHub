@@ -94,8 +94,8 @@ module.exports = {
                     });
                 }
             }
+            return callback(configJSON); //even if no paired devices, the structure for config is still sent back  
         });
-        return callback(configJSON); //even if no paired devices, the structure for config is still sent back  
     });
 
  
