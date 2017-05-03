@@ -237,7 +237,8 @@ router.get('/devices', function(req, res){
                 res.json(winkDevices);       
             }
             else{
-            error = error1;
+                error = error;
+                res.json([])
             };
         });
         }
