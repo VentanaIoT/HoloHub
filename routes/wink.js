@@ -173,7 +173,7 @@ router.get('/wink_devices', function(req, res){
                     deviceTemp["vendor_logo"] = item.vendor_logo;
                     winkDevices.device_list[count] = deviceTemp;
                     count++;
-                    console.log("light bulb added " + item.name + " " + count);
+                    //console.log("light bulb added " + item.name + " " + count);
                 } else if (item.powerstrip_id != null){
                     deviceTemp["name"] = item.name;         //Kept for legacy. Need to test for removal
                     deviceTemp["device_name"] = item.name;
@@ -182,12 +182,12 @@ router.get('/wink_devices', function(req, res){
                     deviceTemp["device_type"] = 'powerstrips';
                     winkDevices.device_list[count] = deviceTemp;
                     count++;
-                    console.log("powerstrip added " + item.name + " " + count);
+                    //console.log("powerstrip added " + item.name + " " + count);
                 }/* else if (item.manufacturer_device_model == "wink_hub") {
                     deviceTemp["device_id"] = item.hub_id;
                     deviceTemp["device_type"] = 'hubs';
                 }*/ else {
-                    console.log("Device type not supported");
+                    //console.log("Device type not supported");
                 }
                 //deviceTemp["name"] = item.name;         //Kept for legacy. Need to test for removal
                 //deviceTemp["device_name"] = item.name;
@@ -217,7 +217,7 @@ router.get('/devices', function(req, res){
     var connectedDevices = {};
 
     // Retrieve all devices paired with the HoloHub, place into a dictionary {device_id: _id}
-    request(BASESERVER + ':' +  port + '/wink/', {timeout: 500}, function(error, response, body){
+    request(BASESERVER + ':' +  port + '/wink/', function(error, response, body){
         if(!error && response.statusCode == 200) {
             var temp1 = JSON.parse(body);
             temp1.forEach(function(arrayItem){
@@ -225,7 +225,7 @@ router.get('/devices', function(req, res){
         });
 
         // Discover all Wink devices on the Wink.COM
-        request(BASESERVER + ':' +  port + '/wink/wink_devices/', {timeout: 500}, function(error, response, body){
+        request(BASESERVER + ':' +  port + '/wink/wink_devices/', function(error, response, body){
             if (!error && response.statusCode == 200) {
                 var winkRequestData = JSON.parse(body)['device_list'];
 
