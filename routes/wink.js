@@ -147,6 +147,7 @@ router.get('/wink_devices', function(req, res){
     request({
         method: 'GET',
         url: WINK_HTTP_SERVER + 'users/me/wink_devices',
+        timeout: 120000,
         headers: {
             'Content-Type': 'application/json',
             'Authorization': WINK_AUTHORIZATION
@@ -201,19 +202,19 @@ router.get('/devices', function(req, res){
     var connectedDevices = {};
 
     // Retrieve all devices paired with the HoloHub, place into a dictionary {device_id: _id}
-    request(BASESERVER + ':' +  port + '/wink/', function(error, response, body){
+    request(BASESERVER + ':' +  port + '/wink/', {timeout: 500}, function(error, response, body){
         if(!error && response.statusCode == 200) {
-        var temp1 = JSON.parse(body);
-        temp1.forEach(function(arrayItem){
+            var temp1 = JSON.parse(body);
+            temp1.forEach(function(arrayItem){
             connectedDevices[arrayItem.device_id] = arrayItem;
         });
 
         // Discover all Wink devices on the Wink.COM
-        request(BASESERVER + ':' +  port + '/wink/wink_devices/', function(error, response, body){
+        request(BASESERVER + ':' +  port + '/wink/wink_devices/', {timeout: 500}, function(error, response, body){
             if (!error && response.statusCode == 200) {
-                var sonosRequestData = JSON.parse(body)['device_list'];
+                var winkRequestData = JSON.parse(body)['device_list'];
 
-                sonosRequestData.forEach( function(arrayItem) {
+                winkRequestData.forEach( function(arrayItem) {
                 //If device name is in connectedDevices, then device is paired -- show w/ it's vumark ID
                 if(arrayItem.device_id in connectedDevices){
                     winkDevices.paired_devices.push(connectedDevices[arrayItem.device_id]);
@@ -237,13 +238,14 @@ router.get('/devices', function(req, res){
                 res.json(winkDevices);       
             }
             else{
-            error = error1;
+                error = error;
+                res.json({"message": "merp"});
             };
         });
         }
-        else{
-        console.log(error);
-        res.send("Error " + error, statusCode=500);
+        else {
+            console.log(error);
+            res.send("Error " + error, statusCode=500);
         };
     });
 });
