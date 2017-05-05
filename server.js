@@ -279,7 +279,7 @@ app.get('/addWink', function(req, res) {
 });
 
 // used by the Ventana application to get config of paired devices
-app.get('/holoconfig', function(req, res){
+    app.get('/holoconfig', function(req, res){
 
     setup.getConfig(function(returnJSON) {
         //console.log(JSON.stringify(returnJSON));

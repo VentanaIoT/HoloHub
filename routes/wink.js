@@ -118,8 +118,9 @@ router.route('/')
             method: 'GET',
             url: WINK_HTTP_SERVER + wink._doc.device_type + "/" + wink._doc.device_id,
             headers: {
-            'Content-Type': 'application/json',
-            'Authorization': WINK_AUTHORIZATION
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+                'Authorization': WINK_AUTHORIZATION
             },
         }, function(error, response, body) {
             if (!error && response.statusCode == 200) {
@@ -150,6 +151,7 @@ router.get('/wink_devices', function(req, res){
         timeout: 120000,
         headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
             'Authorization': WINK_AUTHORIZATION
         },
     }, function(error, response, body){
@@ -160,23 +162,36 @@ router.get('/wink_devices', function(req, res){
          
             var winkResponseBody = JSON.parse(body);
 
+            var count = 0;
             winkResponseBody.data.forEach( function (item, index) {
                 var deviceTemp = {};
-                if (item.light_bulb_id != null){
+                if (item.light_bulb_id != null && item.device_manufacturer != "philips"){
                     deviceTemp["device_id"] = item.light_bulb_id;
                     deviceTemp["device_type"] = 'light_bulbs';
+                    deviceTemp["name"] = item.name;         //Kept for legacy. Need to test for removal
+                    deviceTemp["device_name"] = item.name;
+                    deviceTemp["vendor_logo"] = item.vendor_logo;
+                    winkDevices.device_list[count] = deviceTemp;
+                    count++;
+                    console.log("light bulb added " + item.name + " " + count);
                 } else if (item.powerstrip_id != null){
+                    deviceTemp["name"] = item.name;         //Kept for legacy. Need to test for removal
+                    deviceTemp["device_name"] = item.name;
+                    deviceTemp["vendor_logo"] = item.vendor_logo;
                     deviceTemp["device_id"] = item.powerstrip_id;
                     deviceTemp["device_type"] = 'powerstrips';
+                    winkDevices.device_list[count] = deviceTemp;
+                    count++;
+                    console.log("powerstrip added " + item.name + " " + count);
                 }/* else if (item.manufacturer_device_model == "wink_hub") {
                     deviceTemp["device_id"] = item.hub_id;
                     deviceTemp["device_type"] = 'hubs';
                 }*/ else {
                     console.log("Device type not supported");
                 }
-                deviceTemp["name"] = item.name;         //Kept for legacy. Need to test for removal
-                deviceTemp["device_name"] = item.name;
-                deviceTemp["vendor_logo"] = item.vendor_logo;
+                //deviceTemp["name"] = item.name;         //Kept for legacy. Need to test for removal
+                //deviceTemp["device_name"] = item.name;
+                //deviceTemp["vendor_logo"] = item.vendor_logo;
                 /*getVumarkByDeviceID(deviceTemp["device_id"], function (returnObject){
                     if (returnObject != null) {
                         // this device has a vumark id linked to item
@@ -185,7 +200,7 @@ router.get('/wink_devices', function(req, res){
                         deviceTemp["_id"] = null;
                     }
                 });*/
-                winkDevices.device_list[index] = deviceTemp;
+                //winkDevices.device_list[index] = deviceTemp;
             });
 
             res.json(winkDevices)
@@ -238,7 +253,7 @@ router.get('/devices', function(req, res){
                 res.json(winkDevices);       
             }
             else{
-                //error = error;
+                error = error;
                 res.json({"message": "merp"});
             };
         });
