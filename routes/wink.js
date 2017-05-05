@@ -238,7 +238,7 @@ router.get('/devices', function(req, res){
                 res.json(winkDevices);       
             }
             else{
-                error = error;
+                //error = error;
                 res.json({"message": "merp"});
             };
         });

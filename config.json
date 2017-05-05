@@ -1,7 +1,7 @@
 {
   "server": {
     "protocol": "http",
-    "host": "192.168.0.115:8081"
+    "host": "192.168.0.171:8081"
   },
   "wink": {
     "authorize_url": "https://api.wink.com/oauth2/authorize",
