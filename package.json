@@ -8,8 +8,8 @@
   "scripts": {
     "start": "node server.js"
   },
-  "author": "Ventana IoT - 2017",
-  "license": "MIT",
+  "author": "Ventana IoT",
+  "license": "GNU GPLv3",
   "dependencies": {
     "body-parser": "~1.0.1",
     "ejs": "^2.5.6",
