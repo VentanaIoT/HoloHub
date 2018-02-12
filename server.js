@@ -63,7 +63,7 @@ BASESERVER = 'http://localhost';
 // wink tokens
 WINK_ACCESS_TOKEN = "";
 WINK_REFRESH_TOKEN = "";
-WINK_AUTHORIZATION = 'bearer 82pXcnWl6h-5wPyTIrBJBYqxve-ZHih7';
+WINK_AUTHORIZATION = 'bearer q2twoWlvcCxLguKdSpMGMF6fnLK7Uk0_'; 
 
 // connect to our database
 var mongoose = require('mongoose');
@@ -279,7 +279,7 @@ app.get('/addWink', function(req, res) {
 });
 
 // used by the Ventana application to get config of paired devices
-app.get('/holoconfig', function(req, res){
+    app.get('/holoconfig', function(req, res){
 
     setup.getConfig(function(returnJSON) {
         //console.log(JSON.stringify(returnJSON));

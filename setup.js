@@ -68,15 +68,16 @@ module.exports = {
             
             var sonosPaired = responseJson["paired_devices"];
 
-            sonosPaired.forEach(function(item, index) {
-                var tempSonos = {};
-                tempSonos["id"] = "0x0" + (item._id).toString(16);
-                tempSonos["name"] = item.device_name;
-                tempSonos["path"] = item.controller;
-                configJSON.VentanaMarks[vmIndex] = tempSonos;
-                vmIndex++;
-            });
-
+            if (sonosPaired != null) {
+                sonosPaired.forEach(function(item, index) {
+                    var tempSonos = {};
+                    tempSonos["id"] = "0x0" + (item._id).toString(16);
+                    tempSonos["name"] = item.device_name;
+                    tempSonos["path"] = item.controller;
+                    configJSON.VentanaMarks[vmIndex] = tempSonos;
+                    vmIndex++;
+                });
+            }
         }
         request(BASESERVER + ":" +  port + "/wink/devices", function(error, response, body){
             if(!error){
@@ -84,14 +85,16 @@ module.exports = {
                 
                 var winkPaired = responseJson["paired_devices"];
 
-                winkPaired.forEach(function(item, index){
-                    var tempWink = {};
-                    tempWink["id"] = "0x0" + (item._id).toString(16);
-                    tempWink["name"] = item.device_name;
-                    tempWink["path"] = item.controller;
-                    configJSON.VentanaMarks[vmIndex] = tempWink; 
-                    vmIndex++;
-                });
+                if (winkPaired != null) {
+                    winkPaired.forEach(function(item, index){
+                        var tempWink = {};
+                        tempWink["id"] = "0x0" + (item._id).toString(16);
+                        tempWink["name"] = item.device_name;
+                        tempWink["path"] = item.controller;
+                        configJSON.VentanaMarks[vmIndex] = tempWink; 
+                        vmIndex++;
+                    });
+                }
             }
             return callback(configJSON); //even if no paired devices, the structure for config is still sent back
         });  
